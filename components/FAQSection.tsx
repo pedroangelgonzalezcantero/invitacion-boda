@@ -9,13 +9,14 @@ interface FAQItem {
   question: string
   answer: string
   emoji: string
+  link?: { label: string; url: string }
 }
 
 const FAQ_ITEMS: FAQItem[] = [
   {
     emoji: '📍',
     question: '¿Dónde se celebra la ceremonia y el banquete?',
-    answer: 'La ceremonia civil y el banquete se celebran en Molina Real, Madrid. Puedes encontrar la ubicación exacta en la sección "El gran día" más arriba, con enlace directo a Google Maps.',
+    answer: 'La ceremonia civil y el banquete se celebran en Molina Real, Molina de Segura. Puedes encontrar la ubicación exacta en la sección "El gran día" más arriba, con enlace directo a Google Maps.',
   },
   {
     emoji: '🕐',
@@ -25,22 +26,18 @@ const FAQ_ITEMS: FAQItem[] = [
   {
     emoji: '👗',
     question: '¿Cuál es el código de vestimenta?',
-    answer: 'El dress code es semiformal elegante. Los caballeros pueden ir con traje oscuro o claro (chaqueta obligatoria) y las señoras con vestido de cóctel o traje de chaqueta. Os pedimos que evitéis el color blanco y el negro intenso, que están reservados para los novios.',
+    answer: 'Queremos que vengáis a vuestro estilo, solo con dos pequeñas excepciones: el blanco queda reservado y el chándal… no es muy de boda.',
   },
   {
     emoji: '🏨',
     question: '¿Dónde puedo alojarme?',
-    answer: 'Te recomendamos buscar alojamiento en la zona centro de Madrid o en hoteles cercanos a la finca. Algunas opciones populares son Hotel NH, Barceló y Meliá en Madrid. También puedes encontrar apartamentos en Airbnb. Te aconsejamos reservar con antelación ya que la fecha puede coincidir con alta demanda.',
+    answer: 'Si queréis sobrevivir a la fiesta, os recomendamos alojaros en Molina de Segura (Murcia). Este hotel es ideal para recuperarse después de darlo todo:',
+    link: { label: 'Ver hotel en Booking.com', url: 'https://www.booking.com/Share-H5nfdW7' },
   },
   {
     emoji: '🚗',
-    question: '¿Hay aparcamiento disponible?',
-    answer: 'Sí, el venue dispone de parking gratuito para todos los invitados. Si venís en coche, no tendréis ningún problema. También hay zona de aparcamiento en los alrededores si el parking estuviese completo.',
-  },
-  {
-    emoji: '🚌',
-    question: '¿Habrá transporte organizado?',
-    answer: 'Estamos valorando organizar un autobús desde el centro de Madrid hasta el venue. En cuanto lo confirmemos, os avisaremos con los detalles. Si no fuera posible, podéis usar taxi, VTC (Uber/Cabify) o coche compartido.',
+    question: '¿Hay aparcamiento disponible en el salon de Celebraciones?',
+    answer: 'Sí, el Restaurante Molina Real dispone de parking gratuito para todos los invitados. Si venís en coche, no tendréis ningún problema. También hay zona de aparcamiento en los alrededores si el parking estuviese completo.',
   },
   {
     emoji: '👶',
@@ -55,22 +52,22 @@ const FAQ_ITEMS: FAQItem[] = [
   {
     emoji: '🍽️',
     question: '¿Hay opciones para personas con alergias o dietas especiales?',
-    answer: 'Sí, absolutamente. Al confirmar tu asistencia podrás indicar tu preferencia de menú (vegetariano, vegano, sin gluten…) y cualquier alergia o intolerancia. Nuestro catering lo tendrá todo en cuenta.',
+    answer: 'Sí, absolutamente. Al confirmar tu asistencia podrás indicar tu preferencia de menú (vegetariano, vegano, sin gluten…) y cualquier alergia o intolerancia. El restaurante lo tendrá todo en cuenta.',
   },
   {
     emoji: '📅',
     question: '¿Cuándo es el plazo para confirmar asistencia?',
-    answer: 'Te pedimos que confirmes tu asistencia antes del 1 de agosto de 2026. Esto nos ayuda a organizar el catering, la disposición de las mesas y todos los detalles con tiempo suficiente. ¡No te olvides!',
+    answer: 'Te pedimos que confirmes tu asistencia antes del 20 de septiembre de 2026. Esto nos ayuda a organizar el restaurante, la disposición de las mesas y todos los detalles con tiempo suficiente. ¡No te olvides!',
   },
   {
     emoji: '🎁',
     question: '¿Qué podemos regalaros?',
-    answer: 'Vuestro regalo más especial es vuestra presencia. Si queréis hacernos un obsequio, podéis contribuir a nuestra luna de miel o nuestro nuevo hogar mediante transferencia bancaria. Encontraréis los datos en la sección "Lista de bodas" de esta misma web.',
+    answer: 'Vuestro regalo más especial es vuestra presencia. Si queréis hacernos un obsequio, podéis contribuir a nuestra luna de miel mediante transferencia bancaria. Encontraréis los datos en la sección "Lista de bodas" de esta misma web.',
   },
   {
     emoji: '🌧️',
     question: '¿Qué pasa si llueve?',
-    answer: 'El venue dispone de espacios cubiertos que garantizan la celebración en perfectas condiciones independientemente del tiempo. Tenemos un plan B completamente preparado por si el tiempo no acompaña, así que no hay de qué preocuparse.',
+    answer: 'En el restaurante Molina Real dispone de espacios cubiertos que garantizan la celebración en perfectas condiciones independientemente del tiempo. Tenemos un plan B completamente preparado por si el tiempo no acompaña, así que no hay de qué preocuparse.',
   },
 ]
 
@@ -227,6 +224,31 @@ export default function FAQSection() {
                         >
                           {item.answer}
                         </p>
+                        {item.link && (
+                          <a
+                            href={item.link.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 6,
+                              marginTop: 10,
+                              padding: '8px 16px',
+                              borderRadius: 50,
+                              background: 'linear-gradient(135deg, #003580, #0057b8)',
+                              color: 'white',
+                              fontFamily: "'Montserrat', sans-serif",
+                              fontWeight: 400,
+                              fontSize: '0.78rem',
+                              letterSpacing: '0.04em',
+                              textDecoration: 'none',
+                              boxShadow: '0 4px 12px rgba(0,53,128,0.3)',
+                            }}
+                          >
+                            🏨 {item.link.label}
+                          </a>
+                        )}
                       </div>
                     </motion.div>
                   )}

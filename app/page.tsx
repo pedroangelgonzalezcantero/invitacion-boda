@@ -157,7 +157,7 @@ export default function Home() {
                     icon: <MapPin size={28} color="var(--gold)" />,
                     title: 'Lugar',
                     content: 'Molina Real',
-                    sub: 'Madrid, España',
+                    sub: 'Molina de Segura, Murcia',
                     link: 'https://www.google.com/maps/place/Restaurante+Molina+Real+Celebraciones/@38.088364,-1.1941352,17z/data=!4m6!3m5!1s0xd638818f963a077:0x35423618ccc8d257!8m2!3d38.088364!4d-1.1915603!16s%2Fg%2F11x9btl0p?entry=ttu&g_ep=EgoyMDI2MDUzMS4wIKXMDSoASAFQAw%3D%3D',
                   },
                 ].map((item) => (
