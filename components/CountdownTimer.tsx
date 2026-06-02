@@ -32,14 +32,16 @@ function CountdownUnit({ value, label }: { value: number; label: string }) {
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
+      style={{ minWidth: 0 }}
     >
       <div
         className="card-elegant flex items-center justify-center"
         style={{
-          width: 72,
-          height: 72,
+          width: 'clamp(58px, 17vw, 80px)',
+          height: 'clamp(58px, 17vw, 80px)',
           borderRadius: 12,
           background: 'rgba(255,255,255,0.9)',
+          flexShrink: 0,
         }}
       >
         <motion.span
@@ -47,7 +49,7 @@ function CountdownUnit({ value, label }: { value: number; label: string }) {
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
           style={{
-            fontSize: '2rem',
+            fontSize: 'clamp(1.4rem, 5vw, 2.2rem)',
             fontWeight: 300,
             color: 'var(--gold)',
             fontFamily: "'Cormorant Garamond', Georgia, serif",
@@ -58,8 +60,15 @@ function CountdownUnit({ value, label }: { value: number; label: string }) {
         </motion.span>
       </div>
       <span
-        className="mt-2 text-xs tracking-[0.2em] uppercase"
-        style={{ color: 'var(--charcoal)', opacity: 0.6, fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}
+        className="mt-2 uppercase"
+        style={{
+          fontSize: 'clamp(0.5rem, 2vw, 0.7rem)',
+          letterSpacing: '0.15em',
+          color: 'var(--charcoal)',
+          opacity: 0.6,
+          fontFamily: "'Montserrat', sans-serif",
+          fontWeight: 300,
+        }}
       >
         {label}
       </span>
@@ -114,34 +123,61 @@ export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
     )
   }
 
+  const separator = (
+    <span
+      style={{
+        fontSize: 'clamp(1.2rem, 4vw, 2rem)',
+        color: 'var(--gold-light)',
+        marginTop: 'clamp(10px, 3vw, 16px)',
+        flexShrink: 0,
+        lineHeight: 1,
+      }}
+    >
+      :
+    </span>
+  )
+
   return (
-    <div className="flex flex-col items-center gap-4">
+    <div className="flex flex-col items-center gap-4" style={{ width: '100%' }}>
       <p
         className="text-sm tracking-[0.2em] uppercase mb-2"
         style={{ color: 'var(--charcoal)', opacity: 0.5, fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}
       >
         Faltan
       </p>
-      <div className="flex items-start gap-4">
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'center',
+          gap: 'clamp(4px, 2vw, 14px)',
+          width: '100%',
+          maxWidth: 380,
+          padding: '0 8px',
+          boxSizing: 'border-box',
+        }}
+      >
         {mounted ? (
           <>
             <CountdownUnit value={timeLeft.days} label="Días" />
-            <span className="text-3xl mt-3" style={{ color: 'var(--gold-light)' }}>:</span>
+            {separator}
             <CountdownUnit value={timeLeft.hours} label="Horas" />
-            <span className="text-3xl mt-3" style={{ color: 'var(--gold-light)' }}>:</span>
+            {separator}
             <CountdownUnit value={timeLeft.minutes} label="Min" />
-            <span className="text-3xl mt-3" style={{ color: 'var(--gold-light)' }}>:</span>
+            {separator}
             <CountdownUnit value={timeLeft.seconds} label="Seg" />
           </>
         ) : (
-          <div className="flex gap-4">
-            {['Días', 'Horas', 'Min', 'Seg'].map((label) => (
-              <CountdownUnit key={label} value={0} label={label} />
+          <>
+            {['Días', 'Horas', 'Min', 'Seg'].map((label, i) => (
+              <>
+                {i > 0 && separator}
+                <CountdownUnit key={label} value={0} label={label} />
+              </>
             ))}
-          </div>
+          </>
         )}
       </div>
     </div>
   )
 }
-
