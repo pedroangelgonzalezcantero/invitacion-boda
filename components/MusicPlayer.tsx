@@ -34,7 +34,26 @@ interface YTPlayer {
   getPlayerState(): number
 }
 
-const VIDEO_ID = process.env.NEXT_PUBLIC_YOUTUBE_MUSIC_ID || 'TPjGEoO_6YI'
+// Acepta tanto el ID puro como cualquier formato de URL de YouTube
+function extractYouTubeId(input: string): string {
+  const s = (input || '').trim()
+  if (!s) return ''
+  // ID puro: 11 caracteres alfanuméricos
+  if (/^[a-zA-Z0-9_-]{11}$/.test(s)) return s
+  // youtu.be/ID  o  youtu.be/ID?si=...
+  const short = s.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/)
+  if (short) return short[1]
+  // youtube.com/watch?v=ID
+  const watch = s.match(/[?&]v=([a-zA-Z0-9_-]{11})/)
+  if (watch) return watch[1]
+  // youtube.com/embed/ID
+  const embed = s.match(/embed\/([a-zA-Z0-9_-]{11})/)
+  if (embed) return embed[1]
+  // Si no coincide nada, devolvemos tal cual (puede que ya sea el ID)
+  return s
+}
+
+const VIDEO_ID = extractYouTubeId(process.env.NEXT_PUBLIC_YOUTUBE_MUSIC_ID || 'TPjGEoO_6YI')
 
 export default function MusicPlayer() {
   const playerRef    = useRef<YTPlayer | null>(null)
