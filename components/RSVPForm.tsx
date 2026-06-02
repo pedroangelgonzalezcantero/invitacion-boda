@@ -337,7 +337,8 @@ export default function RSVPForm() {
           attendees: attending ? attendees : [],
           message,
         }),
-      })      if (res.ok) {
+      })
+      if (res.ok) {
         setStep('success')
       } else {
         const json = await res.json()
