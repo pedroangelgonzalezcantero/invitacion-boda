@@ -1,7 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    remotePatterns: [],
+    unoptimized: true, // Allow local /public/images without remote domains
+  },
+  // Vercel deploy optimization
+  output: "standalone",
 };
 
 export default nextConfig;

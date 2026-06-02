@@ -36,6 +36,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# Fotos originales sin procesar (las procesadas están en /public/images/)
+/public/fotos boda/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
