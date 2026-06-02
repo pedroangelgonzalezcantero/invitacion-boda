@@ -309,6 +309,7 @@ export default function RSVPForm() {
   const [step, setStep] = useState<'start' | 'attendees' | 'message' | 'success' | 'error'>('start')
   const [attending, setAttending] = useState<boolean | null>(null)
   const [attendees, setAttendees] = useState<Attendee[]>([newAttendee()])
+  const [declineName, setDeclineName] = useState('')
   const [message, setMessage] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [apiError, setApiError] = useState('')
@@ -319,7 +320,9 @@ export default function RSVPForm() {
   }
 
   const handleSubmit = async () => {
-    const mainName = attendees[0]?.name.trim()
+    const mainName = attending === false
+      ? declineName.trim()
+      : attendees[0]?.name.trim()
     if (!mainName) { setApiError('Por favor, escribe tu nombre completo.'); return }
 
     setSubmitting(true)
@@ -334,8 +337,7 @@ export default function RSVPForm() {
           attendees: attending ? attendees : [],
           message,
         }),
-      })
-      if (res.ok) {
+      })      if (res.ok) {
         setStep('success')
       } else {
         const json = await res.json()
@@ -366,19 +368,7 @@ export default function RSVPForm() {
         {step === 'start' && (
           <motion.div key="start" {...pageAnim} className="flex flex-col gap-6">
 
-            {/* Nombre */}
-            <div>
-              <label style={labelStyle}>Tu nombre completo</label>
-              <input
-                value={attendees[0]?.name ?? ''}
-                onChange={e => setAttendees(prev => prev.map((a, i) => i === 0 ? { ...a, name: e.target.value } : a))}
-                placeholder="Escribe tu nombre…"
-                style={{ ...inputStyle, fontSize: '1.1rem', padding: '14px 16px' }}
-                autoComplete="name"
-              />
-            </div>
-
-            {/* ¿Asistes? */}
+                      {/* ¿Asistes? */}
             <div>
               <label style={{ ...labelStyle, display: 'block', marginBottom: 12 }}>¿Asistirás a la boda?</label>
               <div className="grid grid-cols-2 gap-3">
@@ -391,7 +381,10 @@ export default function RSVPForm() {
                     <button key={String(opt.value)} type="button"
                       onClick={() => {
                         setAttending(opt.value)
-                        setTimeout(() => setStep(opt.value ? 'attendees' : 'message'), 260)
+                        if (opt.value === true) {
+                          setTimeout(() => setStep('attendees'), 260)
+                        }
+                        // Si es false, NO navegamos: mostramos el campo de nombre abajo
                       }}
                       className="flex flex-col items-center gap-2 py-5 rounded-2xl transition-all"
                       style={{
@@ -408,7 +401,63 @@ export default function RSVPForm() {
               </div>
             </div>
 
-            {apiError && <ErrorBox msg={apiError} />}
+            {/* Campo de nombre cuando no puede asistir */}
+            <AnimatePresence>
+              {attending === false && (
+                <motion.div
+                  key="decline-name"
+                  initial={{ opacity: 0, y: -10, height: 0 }}
+                  animate={{ opacity: 1, y: 0, height: 'auto' }}
+                  exit={{ opacity: 0, y: -10, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="flex flex-col gap-4 overflow-hidden"
+                >
+                  <div
+                    className="p-4 rounded-2xl flex items-start gap-3"
+                    style={{ background: 'rgba(176,120,120,0.07)', border: '1px solid rgba(176,120,120,0.2)' }}
+                  >
+                    <span style={{ fontSize: 20, flexShrink: 0 }}>💌</span>
+                    <p style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300, fontSize: '0.82rem', color: 'var(--charcoal)', opacity: 0.7, lineHeight: 1.6 }}>
+                      Lo sentimos mucho, te echaremos de menos. ¿Nos dices tu nombre para que sepamos quién nos ha escrito?
+                    </p>
+                  </div>
+
+                  <div>
+                    <label style={labelStyle}>Tu nombre completo</label>
+                    <input
+                      autoFocus
+                      value={declineName}
+                      onChange={e => setDeclineName(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter' && declineName.trim()) {
+                          setApiError('')
+                          setStep('message')
+                        }
+                      }}
+                      placeholder="Escribe tu nombre…"
+                      style={inputStyle}
+                    />
+                  </div>
+
+                  {apiError && <ErrorBox msg={apiError} />}
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!declineName.trim()) { setApiError('Por favor, escribe tu nombre.'); return }
+                      setApiError('')
+                      setStep('message')
+                    }}
+                    className="btn-gold w-full"
+                    style={{ fontSize: '0.9rem', padding: '13px 20px' }}
+                  >
+                    Continuar →
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {attending !== false && apiError && <ErrorBox msg={apiError} />}
           </motion.div>
         )}
 
@@ -487,7 +536,7 @@ export default function RSVPForm() {
                 </div>
               ) : (
                 <p style={{ color: 'var(--rose-dark)', fontFamily: "'Montserrat', sans-serif", fontWeight: 300, fontSize: '0.9rem' }}>
-                  ✗ No podrá asistir — {attendees[0]?.name}
+                  ✗ No podrá asistir — {declineName || attendees[0]?.name || '—'}
                 </p>
               )}
             </div>
@@ -533,7 +582,7 @@ export default function RSVPForm() {
             <p style={{ color: 'var(--charcoal)', opacity: 0.65, fontFamily: "'Montserrat', sans-serif", fontWeight: 300, fontSize: '0.9rem', maxWidth: 300, lineHeight: 1.65 }}>
               {attending
                 ? `Hemos apuntado a ${attendees.length} persona${attendees.length > 1 ? 's' : ''}. ¡Estamos muy emocionados de verte!`
-                : 'Hemos recibido tu respuesta. Te echaremos de menos en este día tan especial.'}
+                : `Hemos recibido tu respuesta, ${declineName || 'amigo/a'}. Te echaremos de menos en este día tan especial.`}
             </p>
             {attending && (
               <div className="flex flex-col gap-1.5 w-full max-w-xs">

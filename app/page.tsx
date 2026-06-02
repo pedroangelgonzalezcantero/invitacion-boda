@@ -371,7 +371,7 @@ export default function Home() {
                     style={{ color: 'var(--charcoal)', opacity: 0.6, fontFamily: "'Montserrat', sans-serif", fontWeight: 300, fontSize: '0.9rem' }}
                   >
                     Por favor, confirma tu asistencia antes del{' '}
-                    <strong style={{ color: 'var(--gold)' }}>1 de agosto de 2026</strong>
+                    <strong style={{ color: 'var(--gold)' }}>20 de Septiembre de 2026</strong>
                   </p>
                 </div>
                 <RSVPForm />
