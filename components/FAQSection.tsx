@@ -16,7 +16,7 @@ const FAQ_ITEMS: FAQItem[] = [
   {
     emoji: '📍',
     question: '¿Dónde se celebra la ceremonia y el banquete?',
-    answer: 'La ceremonia civil y el banquete se celebran en Molina Real, Molina de Segura. Puedes encontrar la ubicación exacta en la sección "El gran día" más arriba, con enlace directo a Google Maps.',
+    answer: 'La ceremonia civil y el banquete se celebran en el Restaurante Molina Real. Puedes encontrar la ubicación exacta en la sección "El gran día" más arriba, con enlace directo a Google Maps.',
   },
   {
     emoji: '🕐',
@@ -32,7 +32,7 @@ const FAQ_ITEMS: FAQItem[] = [
     emoji: '🏨',
     question: '¿Dónde puedo alojarme?',
     answer: 'Si queréis sobrevivir a la fiesta, os recomendamos alojaros en Molina de Segura (Murcia). Este hotel es ideal para recuperarse después de darlo todo:',
-    link: { label: 'Ver hotel en Booking.com', url: 'https://www.booking.com/Share-H5nfdW7' },
+    link: { label: 'Ver hotel en Booking.com', url: 'https://www.booking.com/hotel/es/asa-molina-plaza.es.html?aid=303946&label=molina-de-segura-wPVrdQbf5pN8Bk%2AS7uMLzgS553184970414%3Apl%3Ata%3Ap1%3Ap2%3Aac%3Aap%3Aneg%3Afi%3Atiaud-2382347442888%3Akwd-2454224531676%3Alp9061038%3Ali%3Adec%3Adm%3Appccp%3DUmFuZG9tSVYkc2RlIyh9Ye7BFAsTyVd6olzyFZA51Co-Share-H5nfdW7%401780432266&sid=faa4d66a3de0113b482853fc6d90b30a&all_sr_blocks=1440063901_415476222_0_2_0&checkin=2026-11-28&checkout=2026-11-29&dest_id=-392353&dest_type=city&dist=0&group_adults=2&group_children=0&hapos=1&highlighted_blocks=1440063901_415476222_0_2_0&hpos=1&matching_block_id=1440063901_415476222_0_2_0&no_rooms=1&req_adults=2&req_children=0&room1=A%2CA&sb_price_type=total&sr_order=popularity&sr_pri_blocks=1440063901_415476222_0_2_0__7040&srepoch=1780432913&srpvid=6a469188c464051b&type=total&ucfs=1&' },
   },
   {
     emoji: '🚗',

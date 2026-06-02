@@ -157,7 +157,7 @@ export default function Home() {
                     icon: <MapPin size={28} color="var(--gold)" />,
                     title: 'Lugar',
                     content: 'Molina Real',
-                    sub: 'Molina de Segura, Murcia',
+                    sub: 'C. Amsterdam, 2, 30509 Molina de Segura, Murcia',
                     link: 'https://www.google.com/maps/place/Restaurante+Molina+Real+Celebraciones/@38.088364,-1.1941352,17z/data=!4m6!3m5!1s0xd638818f963a077:0x35423618ccc8d257!8m2!3d38.088364!4d-1.1915603!16s%2Fg%2F11x9btl0p?entry=ttu&g_ep=EgoyMDI2MDUzMS4wIKXMDSoASAFQAw%3D%3D',
                   },
                 ].map((item) => (
@@ -245,22 +245,22 @@ export default function Home() {
                 <div className="flex flex-col gap-10">
                   {[
                     {
-                      year: '2019',
+                      year: '2015',
                       emoji: '☕',
                       title: 'El primer encuentro',
-                      text: 'Nos conocimos en una pequeña cafetería del centro. Una mirada, una sonrisa, y el mundo paró por un momento. Ninguno de los dos sabía que ese día cambiaría nuestras vidas para siempre.',
+                      text: 'Mucho antes de nuestro primer encuentro, nuestros caminos ya se habían cruzado en la playa, donde nació un pequeño tonteo sin saber lo que el destino nos tenía preparado. Años después, en 2015 y casi por casualidad, volvimos a encontrarnos en una comida. Una mirada, una sonrisa… y el mundo se detuvo por un instante. Ninguno de los dos imaginaba que ese día cambiaría nuestras vidas para siempre.'
                     },
                     {
-                      year: '2021',
+                      year: '2016',
                       emoji: '✈️',
                       title: 'Nuestra primera aventura',
                       text: 'Decidimos que queríamos ver el mundo juntos. Roma fue nuestra primera aventura como pareja, caminando por calles empedradas, comiendo pasta y prometiéndonos que esto no sería la última vez.',
                     },
                     {
-                      year: '2024',
+                      year: '2026',
                       emoji: '💍',
                       title: 'La propuesta',
-                      text: 'En el mismo lugar donde nos conocimos, entre nervios y lágrimas de alegría, le pregunté si querría pasar el resto de su vida conmigo. La respuesta fue un rotundo "¡sí!".',
+                      text: 'En nuestro nuevo hogar, entre nervios y lágrimas de alegría, le pregunté si querría pasar el resto de su vida conmigo. La respuesta fue un rotundo "¡sí!".',
                     },
                     {
                       year: '2026',

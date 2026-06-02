@@ -6,8 +6,8 @@ import { Gift, Eye, EyeOff, Copy, Check } from 'lucide-react'
 import SectionWrapper from './SectionWrapper'
 
 const BANK_ACCOUNT = process.env.NEXT_PUBLIC_BANK_ACCOUNT || 'ES12 1234 5678 9012 3456 7890'
-const BANK_NAME    = process.env.NEXT_PUBLIC_BANK_NAME    || 'CaixaBank'
-const BANK_HOLDER  = process.env.NEXT_PUBLIC_BANK_HOLDER  || 'Pedro Ángel González & Mari García'
+const BANK_NAME    = process.env.NEXT_PUBLIC_BANK_NAME    || 'CajaMar'
+const BANK_HOLDER  = process.env.NEXT_PUBLIC_BANK_HOLDER  || 'Pedro Ángel & Mari '
 
 export default function GiftSection() {
   const [revealed, setRevealed] = useState(false)
