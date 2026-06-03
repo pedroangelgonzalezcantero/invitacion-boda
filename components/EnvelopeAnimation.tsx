@@ -101,82 +101,27 @@ export default function EnvelopeAnimation({ onOpen, brideName, groomName }: Enve
             </svg>
           </motion.div>
 
-          {/* ── WAX SEAL (cera orgánica con "Abrir") ── */}
+          {/* ── WAX SEAL (imagen real) ── */}
           <motion.div
             style={{
               position: 'absolute',
               left: '50%', top: '50%',
               transform: 'translate(-50%, -50%)',
-              width:  'min(130px, 34vw)',
-              height: 'min(130px, 34vw)',
+              width:  'min(150px, 38vw)',
+              height: 'min(150px, 38vw)',
               zIndex: 10,
+              filter: 'drop-shadow(0 5px 18px rgba(50,35,0,0.45))',
             }}
             animate={isOpen
               ? { opacity: 0, scale: 0.7, transition: { duration: 0.32, delay: 0.08 } }
               : { scale: [1, 1.02, 1], transition: { duration: 3.5, repeat: Infinity, ease: 'easeInOut' } }}
           >
-            <svg viewBox="0 0 130 130" style={{ width: '100%', height: '100%', overflow: 'visible' }}>
-              <defs>
-                {/* Borde orgánico de cera */}
-                <filter id="waxEdge" x="-20%" y="-20%" width="140%" height="140%">
-                  <feTurbulence type="turbulence" baseFrequency="0.04" numOctaves="4" seed="8" result="noise"/>
-                  <feDisplacementMap in="SourceGraphic" in2="noise" scale="7" xChannelSelector="R" yChannelSelector="G"/>
-                </filter>
-                <filter id="waxShadow" x="-30%" y="-30%" width="160%" height="160%">
-                  <feDropShadow dx="2" dy="5" stdDeviation="6" floodColor="rgba(50,35,0,0.5)"/>
-                </filter>
-                {/* Gradiente dorado miel */}
-                <radialGradient id="waxGold" cx="36%" cy="30%" r="70%">
-                  <stop offset="0%"   stopColor="#ecd078"/>
-                  <stop offset="28%"  stopColor="#c9a040"/>
-                  <stop offset="62%"  stopColor="#a88020"/>
-                  <stop offset="100%" stopColor="#7a5c0a"/>
-                </radialGradient>
-                {/* Brillo especular */}
-                <radialGradient id="waxShine" cx="28%" cy="22%" r="42%">
-                  <stop offset="0%"   stopColor="rgba(255,248,200,0.55)"/>
-                  <stop offset="100%" stopColor="rgba(255,248,200,0)"/>
-                </radialGradient>
-                {/* Sombra interna */}
-                <radialGradient id="waxDark" cx="72%" cy="75%" r="55%">
-                  <stop offset="0%"   stopColor="rgba(0,0,0,0)"/>
-                  <stop offset="100%" stopColor="rgba(0,0,0,0.32)"/>
-                </radialGradient>
-              </defs>
-
-              {/* Cuerpo con borde orgánico */}
-              <g filter="url(#waxEdge)">
-                <circle cx="65" cy="65" r="56" fill="url(#waxGold)" filter="url(#waxShadow)"/>
-              </g>
-              {/* Luces y sombras sin distorsionar */}
-              <circle cx="65" cy="65" r="56" fill="url(#waxDark)"/>
-              <circle cx="65" cy="65" r="56" fill="url(#waxShine)"/>
-
-              {/* Anillos concéntricos */}
-              <circle cx="65" cy="65" r="49" fill="none" stroke="rgba(255,235,150,0.32)" strokeWidth="1.3"/>
-              <circle cx="65" cy="65" r="40" fill="none" stroke="rgba(255,235,150,0.2)"  strokeWidth="0.8"/>
-
-              {/* Puntos decorativos en el anillo */}
-              {[...Array(20)].map((_, i) => {
-                const a = (i * 18) * Math.PI / 180
-                return <circle key={i}
-                  cx={65 + 45 * Math.cos(a)} cy={65 + 45 * Math.sin(a)}
-                  r="1.2" fill="rgba(255,235,150,0.38)"/>
-              })}
-
-              {/* Texto "Abrir" */}
-              <text
-                x="65" y="72"
-                textAnchor="middle"
-                fill="rgba(55,32,4,0.82)"
-                fontSize="23"
-                fontFamily="Georgia, 'Palatino Linotype', serif"
-                fontStyle="italic"
-                letterSpacing="1.5"
-              >
-                Abrir
-              </text>
-            </svg>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/sello.png"
+              alt="Sello de cera"
+              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            />
           </motion.div>
 
           {/* ── NOMBRES al revelar ── */}
