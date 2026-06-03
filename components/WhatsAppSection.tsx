@@ -11,7 +11,7 @@ const GROOM_PHONE = process.env.NEXT_PUBLIC_GROOM_PHONE || ''
 function whatsappUrl(phone: string, senderSide: string, coupleName: string) {
   const clean  = phone.replace(/\D/g, '')
   const text   = encodeURIComponent(
-    `¡Hola! Os escribo por parte de ${senderSide} con una duda sobre la boda. 😊`
+    `¡Hola! 😊 Os escribo por vuestra super boda y tenia unas dudas:`
   )
   return `https://wa.me/${clean}?text=${text}`
 }
