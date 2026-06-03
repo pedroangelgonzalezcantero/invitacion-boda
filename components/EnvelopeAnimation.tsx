@@ -102,27 +102,31 @@ export default function EnvelopeAnimation({ onOpen, brideName, groomName }: Enve
           </motion.div>
 
           {/* ── WAX SEAL (imagen real) ── */}
-          <motion.div
-            style={{
-              position: 'absolute',
-              left: '50%', top: '50%',
-              transform: 'translate(-50%, -50%)',
-              width:  'min(150px, 38vw)',
-              height: 'min(150px, 38vw)',
-              zIndex: 10,
-              filter: 'drop-shadow(0 5px 18px rgba(50,35,0,0.45))',
-            }}
-            animate={isOpen
-              ? { opacity: 0, scale: 0.7, transition: { duration: 0.32, delay: 0.08 } }
-              : { scale: [1, 1.02, 1], transition: { duration: 3.5, repeat: Infinity, ease: 'easeInOut' } }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/images/sello.png"
-              alt="Sello de cera"
-              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-            />
-          </motion.div>
+          {/* Div externo: solo centra, no se anima */}
+          <div style={{
+            position: 'absolute',
+            left: '50%', top: '50%',
+            transform: 'translate(-50%, -50%)',
+            zIndex: 10,
+          }}>
+            <motion.div
+              style={{
+                width:  'min(150px, 38vw)',
+                height: 'min(150px, 38vw)',
+                filter: 'drop-shadow(0 5px 18px rgba(50,35,0,0.45))',
+              }}
+              animate={isOpen
+                ? { opacity: 0, scale: 0.7, transition: { duration: 0.32, delay: 0.08 } }
+                : { scale: [1, 1.02, 1], transition: { duration: 3.5, repeat: Infinity, ease: 'easeInOut' } }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/sello.png"
+                alt="Sello de cera"
+                style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
+              />
+            </motion.div>
+          </div>
 
           {/* ── NOMBRES al revelar ── */}
           <AnimatePresence>
