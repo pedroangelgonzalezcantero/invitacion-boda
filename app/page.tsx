@@ -41,8 +41,6 @@ export default function Home() {
         {!envelopeOpened && (
           <EnvelopeAnimation
             onOpen={() => setEnvelopeOpened(true)}
-            brideName={BRIDE}
-            groomName={GROOM}
           />
         )}
       </AnimatePresence>
@@ -53,7 +51,7 @@ export default function Home() {
           <motion.main
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 1 }}
+            transition={{ duration: 1.2, delay: 0.2 }}
           >
             {/* Music Player */}
             <MusicPlayer />

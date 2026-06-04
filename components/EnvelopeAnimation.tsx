@@ -5,24 +5,19 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 interface EnvelopeAnimationProps {
   onOpen: () => void
-  brideName: string
-  groomName: string
 }
 
-export default function EnvelopeAnimation({ onOpen, brideName, groomName }: EnvelopeAnimationProps) {
-  const [phase, setPhase] = useState<'idle' | 'opening' | 'reveal' | 'done'>('idle')
+export default function EnvelopeAnimation({ onOpen }: EnvelopeAnimationProps) {
+  const [phase, setPhase] = useState<'idle' | 'opening' | 'done'>('idle')
 
   const handleClick = () => {
     if (phase !== 'idle') return
     setPhase('opening')
-    setTimeout(() => setPhase('reveal'), 1100)
-    setTimeout(() => {
-      setPhase('done')
-      setTimeout(onOpen, 700)
-    }, 2600)
+    onOpen() // revelar contenido inmediatamente mientras se abre el sobre
+    setTimeout(() => setPhase('done'), 1300)
   }
 
-  const isOpen = phase === 'opening' || phase === 'reveal'
+  const isOpen = phase === 'opening'
 
   return (
     <AnimatePresence>
@@ -31,7 +26,8 @@ export default function EnvelopeAnimation({ onOpen, brideName, groomName }: Enve
           key="envelope"
           className="fixed inset-0 z-50 overflow-hidden select-none"
           style={{ background: '#c8ceaa', cursor: phase === 'idle' ? 'pointer' : 'default' }}
-          exit={{ opacity: 0, transition: { duration: 0.8 } }}
+          animate={isOpen ? { opacity: 0, transition: { duration: 1.1, delay: 0.15 } } : { opacity: 1 }}
+          exit={{ opacity: 0, transition: { duration: 0.4 } }}
           onClick={handleClick}
         >
           {/* ── Fold crease lines ── */}
@@ -112,43 +108,6 @@ export default function EnvelopeAnimation({ onOpen, brideName, groomName }: Enve
             </motion.div>
           </div>
 
-          {/* ── NOMBRES al revelar ── */}
-          <AnimatePresence>
-            {phase === 'reveal' && (
-              <motion.div
-                className="absolute inset-0 flex flex-col items-center justify-center gap-3 pointer-events-none"
-                style={{ zIndex: 8 }}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.55 }}
-              >
-                <svg width="80" height="14" viewBox="0 0 80 14" fill="none">
-                  <line x1="0" y1="7" x2="30" y2="7" stroke="rgba(80,95,40,0.5)" strokeWidth="0.6" />
-                  <circle cx="40" cy="7" r="3.5" fill="none" stroke="rgba(80,95,40,0.6)" strokeWidth="0.7" />
-                  <circle cx="40" cy="7" r="1.2" fill="rgba(80,95,40,0.7)" />
-                  <line x1="50" y1="7" x2="80" y2="7" stroke="rgba(80,95,40,0.5)" strokeWidth="0.6" />
-                </svg>
-                <p style={{
-                  fontFamily: "Georgia, 'Palatino Linotype', serif",
-                  fontStyle: 'italic',
-                  fontSize: 'clamp(1.5rem, 6vw, 2.2rem)',
-                  color: 'rgba(55,65,25,0.85)',
-                  letterSpacing: '0.04em',
-                  textAlign: 'center',
-                  lineHeight: 1.3,
-                }}>
-                  {brideName} &amp; {groomName}
-                </p>
-                <svg width="80" height="14" viewBox="0 0 80 14" fill="none">
-                  <line x1="0" y1="7" x2="30" y2="7" stroke="rgba(80,95,40,0.5)" strokeWidth="0.6" />
-                  <circle cx="40" cy="7" r="3.5" fill="none" stroke="rgba(80,95,40,0.6)" strokeWidth="0.7" />
-                  <circle cx="40" cy="7" r="1.2" fill="rgba(80,95,40,0.7)" />
-                  <line x1="50" y1="7" x2="80" y2="7" stroke="rgba(80,95,40,0.5)" strokeWidth="0.6" />
-                </svg>
-              </motion.div>
-            )}
-          </AnimatePresence>
 
           {/* ── TAP HINT ── */}
           <AnimatePresence>
