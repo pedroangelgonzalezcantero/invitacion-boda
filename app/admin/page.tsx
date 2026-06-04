@@ -93,6 +93,9 @@ export default function AdminPage() {
       }
       setSummary(json.summary)
       setRsvps(json.rsvps ?? [])
+      if (json.demo) {
+        setError('⚙️ Supabase no está configurado. Las respuestas no se guardan aún. Configura NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY en Vercel.')
+      }
     } catch {
       setError('Error de red')
     } finally {
@@ -163,8 +166,13 @@ export default function AdminPage() {
         </div>
 
         {error && (
-          <div className="p-4 rounded-xl text-sm" style={{ background: '#fff5f5', border: '1px solid #fcc', color: '#c0392b', fontFamily: "'Montserrat', sans-serif" }}>
-            ⚠️ {error}
+          <div className="p-4 rounded-xl text-sm" style={{
+            background: error.startsWith('⚙️') ? 'rgba(255,193,7,0.1)' : '#fff5f5',
+            border: `1px solid ${error.startsWith('⚙️') ? 'rgba(255,193,7,0.4)' : '#fcc'}`,
+            color: error.startsWith('⚙️') ? '#7d6608' : '#c0392b',
+            fontFamily: "'Montserrat', sans-serif", lineHeight: 1.6,
+          }}>
+            {error}
           </div>
         )}
 

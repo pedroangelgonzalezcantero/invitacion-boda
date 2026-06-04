@@ -8,9 +8,28 @@ function isAuthorized(request: NextRequest): boolean {
   return token === process.env.ADMIN_SECRET_TOKEN
 }
 
+function isDemoMode() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''
+  return !url || !key || url.includes('your-project') || key.includes('your-anon-key')
+}
+
 export async function GET(request: NextRequest) {
   if (!isAuthorized(request)) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+  }
+
+  // ── Supabase no configurado → devolver datos vacíos con aviso ──
+  if (isDemoMode()) {
+    return NextResponse.json({
+      demo: true,
+      summary: {
+        totalResponses: 0, confirmed: 0, declined: 0,
+        totalAttending: 0, totalAdults: 0, totalChildren: 0,
+        menuCount: {}, allergyCount: {},
+      },
+      rsvps: [],
+    })
   }
 
   // Fetch all RSVP responses with their attendees

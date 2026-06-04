@@ -248,19 +248,19 @@ export default function Home() {
                       year: '2015',
                       emoji: '☕',
                       title: 'El primer encuentro',
-                      text: 'Mucho antes de nuestro primer encuentro, nuestros caminos ya se habían cruzado en la playa, donde nació un pequeño tonteo sin saber lo que el destino nos tenía preparado. Años después, en 2015 y casi por casualidad, volvimos a encontrarnos en una comida. Una mirada, una sonrisa… y el mundo se detuvo por un instante. Ninguno de los dos imaginaba que ese día cambiaría nuestras vidas para siempre.'
+                      text: 'Nuestros caminos se cruzaron en la playa por primera vez cuando eramos adolescentes, sin saber lo que el destino nos tenía preparado. Años después, en las navidades de 2014, volvimos a encontrarnos en una comida familiar. Una mirada, una sonrisa… y el mundo se detuvo por un instante. Ninguno de los dos imaginaba que ese día cambiaría nuestras vidas para siempre y, desde ese momento, no nos hemos vuelto a separar.'
                     },
                     {
                       year: '2016',
                       emoji: '✈️',
                       title: 'Nuestra primera aventura',
-                      text: 'Decidimos que queríamos ver el mundo juntos. Roma fue nuestra primera aventura como pareja, caminando por calles empedradas, comiendo pasta y prometiéndonos que esto no sería la última vez.',
+                      text: 'Decidimos que queríamos ver el mundo juntos, Roma fue nuestra primera aventura como pareja, la primera de muchas... y el inicio de nuestra obsesión por la pizza y la pasta.',
                     },
                     {
                       year: '2026',
                       emoji: '💍',
                       title: 'La propuesta',
-                      text: 'En nuestro nuevo hogar, entre nervios y lágrimas de alegría, le pregunté si querría pasar el resto de su vida conmigo. La respuesta fue un rotundo "¡sí!".',
+                      text: '11 años después, en nuestro nuevo hogar, con la casa a medio amueblar, con muchos nervios, le pregunté si querría pasar el resto de su vida conmigo. La respuesta fue un rotundo "¡sí!".',
                     },
                     {
                       year: '2026',
