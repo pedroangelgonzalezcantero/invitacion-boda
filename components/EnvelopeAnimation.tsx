@@ -8,25 +8,28 @@ interface EnvelopeAnimationProps {
 }
 
 export default function EnvelopeAnimation({ onOpen }: EnvelopeAnimationProps) {
-  const [phase, setPhase] = useState<'idle' | 'opening' | 'done'>('idle')
+  const [phase, setPhase] = useState<'idle' | 'opening'>('idle')
+  const [visible, setVisible] = useState(true)
 
   const handleClick = () => {
     if (phase !== 'idle') return
     setPhase('opening')
-    onOpen() // el contenido principal empieza a renderizarse ya
-    setTimeout(() => setPhase('done'), 1100) // tras terminar la animación del solapa
+    // tras la animación del solapa (~0.9s), iniciar el fade out del sobre
+    setTimeout(() => setVisible(false), 950)
+    // tras el fade out (~0.8s), llamar onOpen para mostrar el contenido
+    setTimeout(() => onOpen(), 950 + 800)
   }
 
   const isOpen = phase === 'opening'
 
   return (
     <AnimatePresence>
-      {phase !== 'done' && (
+      {visible && (
         <motion.div
           key="envelope"
           className="fixed inset-0 z-50 overflow-hidden select-none"
           style={{ background: '#c8ceaa', cursor: phase === 'idle' ? 'pointer' : 'default' }}
-          exit={{ opacity: 0, transition: { duration: 0.9 } }}
+          exit={{ opacity: 0, transition: { duration: 0.8 } }}
           onClick={handleClick}
         >
           {/* ── Fold crease lines ── */}
@@ -84,7 +87,7 @@ export default function EnvelopeAnimation({ onOpen }: EnvelopeAnimationProps) {
             </svg>
           </motion.div>
 
-          {/* ── SELLO (imagen real) ── */}
+          {/* ── SELLO ── */}
           <div style={{
             position: 'absolute',
             left: '50%', top: '50%',
