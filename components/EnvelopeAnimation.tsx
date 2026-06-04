@@ -13,8 +13,8 @@ export default function EnvelopeAnimation({ onOpen }: EnvelopeAnimationProps) {
   const handleClick = () => {
     if (phase !== 'idle') return
     setPhase('opening')
-    onOpen() // revelar contenido inmediatamente mientras se abre el sobre
-    setTimeout(() => setPhase('done'), 1300)
+    onOpen() // el contenido principal empieza a renderizarse ya
+    setTimeout(() => setPhase('done'), 1100) // tras terminar la animación del solapa
   }
 
   const isOpen = phase === 'opening'
@@ -26,8 +26,7 @@ export default function EnvelopeAnimation({ onOpen }: EnvelopeAnimationProps) {
           key="envelope"
           className="fixed inset-0 z-50 overflow-hidden select-none"
           style={{ background: '#c8ceaa', cursor: phase === 'idle' ? 'pointer' : 'default' }}
-          animate={isOpen ? { opacity: 0, transition: { duration: 1.1, delay: 0.15 } } : { opacity: 1 }}
-          exit={{ opacity: 0, transition: { duration: 0.4 } }}
+          exit={{ opacity: 0, transition: { duration: 0.9 } }}
           onClick={handleClick}
         >
           {/* ── Fold crease lines ── */}
