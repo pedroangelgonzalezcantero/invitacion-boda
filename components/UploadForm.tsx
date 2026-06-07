@@ -136,8 +136,8 @@ export default function UploadForm({ onUploaded }: { onUploaded?: () => void }) 
       <input ref={galleryRef} type="file" multiple accept="image/*,video/*"
         onChange={handleGalleryChange} style={{ display: 'none' }} />
 
-      {/* Input cámara (capture → auto-upload) */}
-      <input ref={cameraRef} type="file" accept="image/*,video/*" capture="environment"
+      {/* Input cámara: accept="image/*" + capture → abre cámara directamente en móvil */}
+      <input ref={cameraRef} type="file" accept="image/*" capture="environment"
         onChange={handleCameraCapture} style={{ display: 'none' }} />
 
       {/* Botones de selección */}
@@ -156,7 +156,7 @@ export default function UploadForm({ onUploaded }: { onUploaded?: () => void }) 
           whileHover={{ borderColor: 'var(--gold)', background: 'rgba(201,169,110,0.14)' }} whileTap={{ scale: 0.97 }}>
           <Camera size={22} />
           <span>{uploading ? 'Subiendo…' : 'Cámara'}</span>
-          <span style={{ fontSize: '0.65rem', opacity: 0.5 }}>Sube al instante</span>
+          <span style={{ fontSize: '0.65rem', opacity: 0.5 }}>Foto al instante</span>
         </motion.button>
       </div>
 
