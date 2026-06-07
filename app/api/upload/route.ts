@@ -6,9 +6,17 @@ export const runtime = 'nodejs'
 export const maxDuration = 60
 
 export async function POST(request: NextRequest) {
-  if (!isDriveConfigured()) {
+  // Diagnóstico detallado de qué variable falta
+  const missing: string[] = []
+  if (!process.env.GOOGLE_OAUTH_CLIENT_ID)     missing.push('GOOGLE_OAUTH_CLIENT_ID')
+  if (!process.env.GOOGLE_OAUTH_CLIENT_SECRET)  missing.push('GOOGLE_OAUTH_CLIENT_SECRET')
+  if (!process.env.GOOGLE_OAUTH_REFRESH_TOKEN)  missing.push('GOOGLE_OAUTH_REFRESH_TOKEN')
+  if (!process.env.GOOGLE_DRIVE_FOLDER_ID)      missing.push('GOOGLE_DRIVE_FOLDER_ID')
+
+  if (missing.length > 0) {
+    console.error('❌ Drive vars missing:', missing)
     return NextResponse.json(
-      { error: 'Google Drive no configurado. Falta GOOGLE_OAUTH_REFRESH_TOKEN en las variables de entorno.' },
+      { error: `Google Drive no configurado. Faltan: ${missing.join(', ')}` },
       { status: 503 }
     )
   }
@@ -53,4 +61,5 @@ export async function POST(request: NextRequest) {
     )
   }
 }
+
 
