@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Users, CheckCircle, XCircle, ChefHat, AlertTriangle, MessageCircle, RefreshCw, ChevronDown, ChevronUp, Baby, User, Download } from 'lucide-react'
+import { Users, CheckCircle, XCircle, ChefHat, AlertTriangle, MessageCircle, RefreshCw, ChevronDown, ChevronUp, Baby, User, Download, QrCode, Images } from 'lucide-react'
 import * as XLSX from 'xlsx'
+import { QRCodeSVG } from 'qrcode.react'
 
 // ── Types ──────────────────────────────────────────────────────
 interface Attendee {
@@ -80,6 +81,9 @@ export default function AdminPage() {
   const [filter, setFilter]             = useState<'all' | 'confirmed' | 'declined'>('all')
   const [expandedId, setExpandedId]     = useState<string | null>(null)
   const [search, setSearch]             = useState('')
+  const [origin, setOrigin]             = useState('')
+
+  useEffect(() => { setOrigin(window.location.origin) }, [])
 
   // ── Excel export ────────────────────────────────────────────
   const exportToExcel = useCallback(() => {
@@ -432,6 +436,29 @@ export default function AdminPage() {
                 </motion.div>
               )
             })}
+          </div>
+        )}
+
+        {/* ── QR RECUERDOS ── */}
+        {origin && (
+          <div className="card-elegant p-6 flex flex-col items-center gap-4 text-center">
+            <div className="flex items-center gap-2" style={{ color: 'var(--gold)' }}>
+              <QrCode size={16} />
+              <p className="text-xs uppercase tracking-widest" style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}>
+                QR Galería de fotos
+              </p>
+            </div>
+            <p style={{ color: 'var(--charcoal)', opacity: 0.45, fontFamily: "'Montserrat', sans-serif", fontWeight: 300, fontSize: '0.78rem', maxWidth: 260 }}>
+              Muestra este QR en la boda para que los invitados suban sus fotos y vídeos
+            </p>
+            <div className="p-4 rounded-2xl" style={{ background: 'white', border: '1px solid rgba(201,169,110,0.2)' }}>
+              <QRCodeSVG value={`${origin}/recuerdos`} size={180} fgColor="#2c2c2c" bgColor="white" />
+            </div>
+            <a href={`${origin}/recuerdos`} target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-2 text-xs"
+              style={{ color: 'var(--gold)', fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}>
+              <Images size={13} /> {origin}/recuerdos
+            </a>
           </div>
         )}
 

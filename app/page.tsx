@@ -376,6 +376,43 @@ export default function Home() {
               </div>
             </SectionWrapper>
 
+            {/* ─── GALERÍA DE INVITADOS ─── */}
+            <SectionWrapper
+              id="fotos"
+              className="py-16 px-6 text-center"
+              style={{ background: 'linear-gradient(135deg, var(--charcoal) 0%, #3d3228 100%)' }}
+            >
+              <div className="max-w-md mx-auto flex flex-col items-center gap-5">
+                <p className="text-xs tracking-[0.4em] uppercase"
+                  style={{ color: 'var(--gold)', fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}>
+                  Vuestros recuerdos
+                </p>
+                <h2 className="text-4xl" style={{ color: 'white', fontWeight: 300, fontStyle: 'italic' }}>
+                  Comparte tus fotos
+                </h2>
+                <p style={{ color: 'rgba(255,255,255,0.5)', fontFamily: "'Montserrat', sans-serif", fontWeight: 300, fontSize: '0.88rem', lineHeight: 1.7, maxWidth: 320 }}>
+                  Sube tus fotos y vídeos del gran día y forma parte de nuestro álbum compartido 📸
+                </p>
+                <motion.a href="/recuerdos"
+                  className="inline-flex items-center gap-3 px-8 py-4 rounded-full"
+                  style={{
+                    background: 'var(--gold)',
+                    color: 'white',
+                    fontFamily: "'Montserrat', sans-serif",
+                    fontWeight: 300,
+                    fontSize: '0.85rem',
+                    letterSpacing: '0.12em',
+                    textTransform: 'uppercase',
+                    textDecoration: 'none',
+                  }}
+                  whileHover={{ scale: 1.04, background: '#b8935a' }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  📷 Subir fotos y vídeos
+                </motion.a>
+              </div>
+            </SectionWrapper>
+
             {/* ─── WHATSAPP CONTACTO ─── */}
             <WhatsAppSection />
 
