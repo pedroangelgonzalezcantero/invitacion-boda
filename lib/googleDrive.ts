@@ -15,9 +15,7 @@ function getDriveClient() {
     process.env.GOOGLE_OAUTH_CLIENT_ID,
     process.env.GOOGLE_OAUTH_CLIENT_SECRET,
   )
-  oauth2Client.setCredentials({
-    refresh_token: process.env.GOOGLE_OAUTH_REFRESH_TOKEN,
-  })
+  oauth2Client.setCredentials({ refresh_token: process.env.GOOGLE_OAUTH_REFRESH_TOKEN })
   return google.drive({ version: 'v3', auth: oauth2Client })
 }
 
@@ -25,7 +23,7 @@ export async function uploadFileToDrive(
   buffer: Buffer,
   fileName: string,
   mimeType: string,
-): Promise<{ fileId: string; webViewLink: string } | null> {
+): Promise<{ fileId: string; viewUrl: string; thumbnailUrl: string } | null> {
   if (!isDriveConfigured()) return null
 
   const drive = getDriveClient()
@@ -37,11 +35,22 @@ export async function uploadFileToDrive(
       parents: [process.env.GOOGLE_DRIVE_FOLDER_ID!],
     },
     media: { mimeType, body: stream },
-    fields: 'id,webViewLink',
+    fields: 'id',
   })
 
-  return {
-    fileId: res.data.id ?? '',
-    webViewLink: res.data.webViewLink ?? '',
-  }
+  const fileId = res.data.id!
+
+  // Hacer el archivo visible públicamente (necesario para mostrarlo en la galería)
+  await drive.permissions.create({
+    fileId,
+    requestBody: { role: 'reader', type: 'anyone' },
+  })
+
+  const isVideo = mimeType.startsWith('video/')
+  const viewUrl = isVideo
+    ? `https://drive.google.com/file/d/${fileId}/preview`
+    : `https://drive.google.com/uc?export=view&id=${fileId}`
+  const thumbnailUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w400`
+
+  return { fileId, viewUrl, thumbnailUrl }
 }

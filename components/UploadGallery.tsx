@@ -7,11 +7,10 @@ import { X, Play, RefreshCw } from 'lucide-react'
 
 interface Upload {
   id: string
-  file_url: string
+  file_url: string      // Drive view URL
+  storage_path: string  // Drive fileId
   file_type: 'image' | 'video'
   file_name: string | null
-  guest_name: string | null
-  message: string | null
   created_at: string
 }
 
@@ -25,9 +24,9 @@ export default function UploadGallery() {
     if (showRefresh) setRefreshing(true)
     const { data } = await supabase
       .from('uploads')
-      .select('*')
+      .select('id,file_url,storage_path,file_type,file_name,created_at')
       .order('created_at', { ascending: false })
-      .limit(100)
+      .limit(200)
     if (data) setUploads(data as Upload[])
     setLoading(false)
     setRefreshing(false)
@@ -38,6 +37,10 @@ export default function UploadGallery() {
     const interval = setInterval(() => fetchUploads(), 30_000)
     return () => clearInterval(interval)
   }, [fetchUploads])
+
+  // URL del thumbnail de Drive
+  const thumbUrl = (u: Upload) =>
+    `https://drive.google.com/thumbnail?id=${u.storage_path}&sz=w400`
 
   if (loading) {
     return (
@@ -84,33 +87,24 @@ export default function UploadGallery() {
             style={{ aspectRatio: '1/1', borderRadius: 16, background: 'rgba(201,169,110,0.08)' }}
             onClick={() => setSelected(upload)}
           >
-            {upload.file_type === 'image' ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={upload.file_url} alt={upload.file_name ?? 'Foto'}
-                loading="lazy" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
-            ) : (
-              <div className="w-full h-full relative" style={{ background: '#1a1a2e' }}>
-                {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-                <video src={`${upload.file_url}#t=0.5`} className="w-full h-full object-cover"
-                  preload="metadata" playsInline muted />
-                <div className="absolute inset-0 flex items-center justify-center"
-                  style={{ background: 'rgba(0,0,0,0.35)' }}>
-                  <div className="rounded-full flex items-center justify-center"
-                    style={{ width: 44, height: 44, background: 'rgba(255,255,255,0.9)' }}>
-                    <Play size={20} color="var(--charcoal)" fill="var(--charcoal)" style={{ marginLeft: 2 }} />
-                  </div>
-                </div>
-              </div>
-            )}
+            {/* Thumbnail — Drive genera thumbnails para imágenes y vídeos */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={thumbUrl(upload)}
+              alt={upload.file_name ?? ''}
+              loading="lazy"
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
+            />
 
-            {/* Overlay con nombre */}
-            {upload.guest_name && (
-              <div className="absolute bottom-0 left-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                style={{ background: 'linear-gradient(transparent, rgba(0,0,0,0.65))' }}>
-                <p className="text-white text-xs truncate"
-                  style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}>
-                  {upload.guest_name}
-                </p>
+            {/* Icono play para vídeos */}
+            {upload.file_type === 'video' && (
+              <div className="absolute inset-0 flex items-center justify-center"
+                style={{ background: 'rgba(0,0,0,0.3)' }}>
+                <div className="rounded-full flex items-center justify-center"
+                  style={{ width: 44, height: 44, background: 'rgba(255,255,255,0.9)' }}>
+                  <Play size={20} color="var(--charcoal)" fill="var(--charcoal)" style={{ marginLeft: 2 }} />
+                </div>
               </div>
             )}
           </motion.div>
@@ -137,28 +131,17 @@ export default function UploadGallery() {
                 <img src={selected.file_url} alt=""
                   className="w-full rounded-2xl" style={{ maxHeight: '80vh', objectFit: 'contain' }} />
               ) : (
-                // eslint-disable-next-line jsx-a11y/media-has-caption
-                <video src={selected.file_url} controls autoPlay
-                  className="w-full rounded-2xl" style={{ maxHeight: '80vh' }} />
+                <iframe
+                  src={selected.file_url}
+                  className="w-full rounded-2xl"
+                  style={{ height: '60vw', maxHeight: '70vh', border: 'none' }}
+                  allow="autoplay"
+                />
               )}
 
-              {(selected.guest_name || selected.message) && (
-                <div className="mt-4 text-center px-2">
-                  {selected.guest_name && (
-                    <p style={{ color: 'white', fontFamily: "'Cormorant Garamond', serif", fontSize: '1.2rem', fontWeight: 300 }}>
-                      {selected.guest_name}
-                    </p>
-                  )}
-                  {selected.message && (
-                    <p className="mt-1" style={{ color: 'rgba(255,255,255,0.55)', fontFamily: "'Montserrat', sans-serif", fontWeight: 300, fontSize: '0.82rem', fontStyle: 'italic' }}>
-                      "{selected.message}"
-                    </p>
-                  )}
-                  <p className="mt-2" style={{ color: 'rgba(255,255,255,0.25)', fontFamily: "'Montserrat', sans-serif", fontWeight: 300, fontSize: '0.7rem' }}>
-                    {new Date(selected.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}
-                  </p>
-                </div>
-              )}
+              <p className="mt-3 text-center" style={{ color: 'rgba(255,255,255,0.25)', fontFamily: "'Montserrat', sans-serif", fontWeight: 300, fontSize: '0.7rem' }}>
+                {new Date(selected.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}
+              </p>
 
               <button onClick={() => setSelected(null)}
                 className="absolute -top-3 -right-3 rounded-full p-2 flex items-center justify-center"
@@ -172,4 +155,3 @@ export default function UploadGallery() {
     </>
   )
 }
-
