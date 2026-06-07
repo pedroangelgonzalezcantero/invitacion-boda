@@ -27,11 +27,12 @@ export async function POST(request: NextRequest) {
     const result = await uploadFileToDrive(buffer, fileName, mimeType ?? 'application/octet-stream')
 
     console.log('✅ Drive upload OK:', result?.fileId, fileName)
-    return NextResponse.json({ success: true, driveLink: result?.webViewLink, fileId: result?.fileId })
+    return NextResponse.json({ success: true, driveLink: result?.viewUrl, fileId: result?.fileId })
   } catch (err) {
     console.error('❌ Drive upload FAILED:', err instanceof Error ? err.message : err)
     return NextResponse.json({ error: 'Error al subir a Drive (el archivo está guardado en la galería)', skip: true }, { status: 200 })
   }
 }
+
 
 
