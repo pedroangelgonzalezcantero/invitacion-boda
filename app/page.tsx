@@ -7,7 +7,6 @@ import EnvelopeAnimation from '@/components/EnvelopeAnimation'
 import CountdownTimer from '@/components/CountdownTimer'
 import PhotoGallery from '@/components/PhotoGallery'
 import RSVPForm from '@/components/RSVPForm'
-import RSVPStats from '@/components/RSVPStats'
 import SectionWrapper from '@/components/SectionWrapper'
 import GiftSection from '@/components/GiftSection'
 import WhatsAppSection from '@/components/WhatsAppSection'
@@ -374,7 +373,6 @@ export default function Home() {
                   </p>
                 </div>
                 <RSVPForm />
-                <RSVPStats />
               </div>
             </SectionWrapper>
 
