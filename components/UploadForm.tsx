@@ -4,7 +4,7 @@ import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
 import { uploadToCloudinary, validateFileSize } from '@/lib/cloudinary'
-import { Upload, X, CheckCircle, Film, AlertCircle, Camera, User } from 'lucide-react'
+import { Upload, X, CheckCircle, Film, AlertCircle, Camera } from 'lucide-react'
 
 interface FileItem {
   id:       string
@@ -15,28 +15,73 @@ interface FileItem {
   preview?: string
 }
 
+// ── Sube UN archivo a Cloudinary y lo guarda en Supabase ─────────────────────
+async function uploadOne(
+  item: FileItem,
+  onProgress: (id: string, pct: number) => void,
+  onStatus:   (id: string, status: FileItem['status'], error?: string) => void,
+) {
+  onStatus(item.id, 'uploading')
+  try {
+    const result = await uploadToCloudinary(item.file, (pct) => onProgress(item.id, pct))
+    const { error: dbErr } = await supabase.from('uploads').insert({
+      file_url:     result.secure_url,
+      file_type:    result.resource_type === 'video' ? 'video' : 'image',
+      file_name:    item.file.name,
+      storage_path: result.public_id,
+    })
+    if (dbErr) console.warn('Supabase insert:', dbErr.message)
+    onStatus(item.id, 'done')
+    return true
+  } catch (err) {
+    onStatus(item.id, 'error', err instanceof Error ? err.message : 'Error desconocido')
+    return false
+  }
+}
+
 export default function UploadForm({ onUploaded }: { onUploaded?: () => void }) {
   const [files, setFiles]         = useState<FileItem[]>([])
-  const [userName, setUserName]   = useState('')
   const [uploading, setUploading] = useState(false)
   const [allDone, setAllDone]     = useState(false)
   const galleryRef                = useRef<HTMLInputElement>(null)
   const cameraRef                 = useRef<HTMLInputElement>(null)
 
-  const addFiles = (selected: File[]) => {
-    const items: FileItem[] = selected.map(f => {
-      const id      = Math.random().toString(36).slice(2)
-      const sizeErr = validateFileSize(f)
-      if (sizeErr) return { id, file: f, status: 'error' as const, progress: 0, error: sizeErr }
-      const preview = f.type.startsWith('image/') ? URL.createObjectURL(f) : undefined
-      return { id, file: f, status: 'pending' as const, progress: 0, preview }
-    })
-    setFiles(prev => [...prev, ...items])
+  const setProgress = (id: string, pct: number) =>
+    setFiles(prev => prev.map(f => f.id === id ? { ...f, progress: pct } : f))
+
+  const setStatus = (id: string, status: FileItem['status'], error?: string) =>
+    setFiles(prev => prev.map(f => f.id === id ? { ...f, status, ...(error ? { error } : {}) } : f))
+
+  const buildItem = (f: File): FileItem => {
+    const id      = Math.random().toString(36).slice(2)
+    const sizeErr = validateFileSize(f)
+    if (sizeErr) return { id, file: f, status: 'error', progress: 0, error: sizeErr }
+    const preview = f.type.startsWith('image/') ? URL.createObjectURL(f) : undefined
+    return { id, file: f, status: 'pending', progress: 0, preview }
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    addFiles(Array.from(e.target.files ?? []))
+  // Galería: añade archivos a la lista, el usuario pulsa "Subir"
+  const handleGalleryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const items = Array.from(e.target.files ?? []).map(buildItem)
+    setFiles(prev => [...prev, ...items])
     e.target.value = ''
+  }
+
+  // Cámara: captura la foto/vídeo y lo sube AUTOMÁTICAMENTE
+  const handleCameraCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = Array.from(e.target.files ?? [])
+    e.target.value = ''
+    if (selected.length === 0) return
+
+    const item = buildItem(selected[0])
+    setFiles(prev => [...prev, item])
+
+    if (item.status === 'error') return  // tamaño inválido
+
+    setUploading(true)
+    const ok = await uploadOne(item, setProgress, setStatus)
+    setUploading(false)
+    if (ok) { setAllDone(true); onUploaded?.() }
   }
 
   const removeFile = (id: string) => {
@@ -47,42 +92,17 @@ export default function UploadForm({ onUploaded }: { onUploaded?: () => void }) 
     })
   }
 
+  // Subida manual del carrete
   const handleUpload = async () => {
     const pending = files.filter(f => f.status === 'pending')
     if (pending.length === 0) return
 
     setUploading(true)
     let doneCount = 0
-
-    for (const item of files) {
-      if (item.status !== 'pending') continue
-
-      setFiles(prev => prev.map(f => f.id === item.id ? { ...f, status: 'uploading', progress: 0 } : f))
-
-      try {
-        // 1️⃣ Subida directa cliente → Cloudinary (sin pasar por el servidor)
-        const result = await uploadToCloudinary(item.file, (pct) => {
-          setFiles(prev => prev.map(f => f.id === item.id ? { ...f, progress: pct } : f))
-        })
-
-        // 2️⃣ Guardar solo URL + metadata en Supabase (sin archivos en Supabase Storage)
-        const { error: dbErr } = await supabase.from('uploads').insert({
-          file_url:     result.secure_url,
-          file_type:    result.resource_type === 'video' ? 'video' : 'image',
-          file_name:    item.file.name,
-          storage_path: result.public_id,   // public_id de Cloudinary → para thumbnails
-          user_name:    userName.trim() || null,
-        })
-        if (dbErr) console.warn('Supabase insert:', dbErr.message)
-
-        setFiles(prev => prev.map(f => f.id === item.id ? { ...f, status: 'done', progress: 100 } : f))
-        doneCount++
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : 'Error desconocido'
-        setFiles(prev => prev.map(f => f.id === item.id ? { ...f, status: 'error', error: msg } : f))
-      }
+    for (const item of pending) {
+      const ok = await uploadOne(item, setProgress, setStatus)
+      if (ok) doneCount++
     }
-
     setUploading(false)
     if (doneCount > 0) { setAllDone(true); onUploaded?.() }
   }
@@ -112,37 +132,13 @@ export default function UploadForm({ onUploaded }: { onUploaded?: () => void }) 
 
   return (
     <div className="flex flex-col gap-4 w-full">
-      {/* Inputs ocultos */}
+      {/* Input galería (múltiple, manual) */}
       <input ref={galleryRef} type="file" multiple accept="image/*,video/*"
-        onChange={handleFileChange} style={{ display: 'none' }} />
-      <input ref={cameraRef} type="file" accept="image/*,video/*" capture="environment"
-        onChange={handleFileChange} style={{ display: 'none' }} />
+        onChange={handleGalleryChange} style={{ display: 'none' }} />
 
-      {/* Campo de nombre */}
-      <div className="relative">
-        <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-          <User size={15} color="rgba(201,169,110,0.6)" />
-        </div>
-        <input
-          type="text"
-          value={userName}
-          onChange={e => setUserName(e.target.value)}
-          placeholder="Tu nombre (opcional)"
-          maxLength={60}
-          disabled={uploading}
-          className="w-full pl-9 pr-4 py-3 rounded-xl text-sm outline-none transition-all"
-          style={{
-            background: 'rgba(201,169,110,0.05)',
-            border: '1px solid rgba(201,169,110,0.25)',
-            color: 'var(--charcoal)',
-            fontFamily: "'Montserrat', sans-serif",
-            fontWeight: 300,
-            fontSize: '0.82rem',
-          }}
-          onFocus={e => (e.target.style.borderColor = 'rgba(201,169,110,0.6)')}
-          onBlur={e  => (e.target.style.borderColor = 'rgba(201,169,110,0.25)')}
-        />
-      </div>
+      {/* Input cámara (capture → auto-upload) */}
+      <input ref={cameraRef} type="file" accept="image/*,video/*" capture="environment"
+        onChange={handleCameraCapture} style={{ display: 'none' }} />
 
       {/* Botones de selección */}
       <div className="grid grid-cols-2 gap-3">
@@ -158,8 +154,9 @@ export default function UploadForm({ onUploaded }: { onUploaded?: () => void }) 
           className="py-5 rounded-2xl flex flex-col items-center justify-center gap-2"
           style={{ border: '2px solid rgba(201,169,110,0.35)', background: 'rgba(201,169,110,0.08)', color: 'var(--gold)', fontFamily: "'Montserrat', sans-serif", fontWeight: 300, fontSize: '0.78rem', cursor: 'pointer' }}
           whileHover={{ borderColor: 'var(--gold)', background: 'rgba(201,169,110,0.14)' }} whileTap={{ scale: 0.97 }}>
-          <Camera size={22} /><span>Cámara</span>
-          <span style={{ fontSize: '0.65rem', opacity: 0.5 }}>Foto o vídeo</span>
+          <Camera size={22} />
+          <span>{uploading ? 'Subiendo…' : 'Cámara'}</span>
+          <span style={{ fontSize: '0.65rem', opacity: 0.5 }}>Sube al instante</span>
         </motion.button>
       </div>
 
@@ -215,6 +212,7 @@ export default function UploadForm({ onUploaded }: { onUploaded?: () => void }) 
         })}
       </AnimatePresence>
 
+      {/* Botón subir — solo para archivos del carrete */}
       {pendingCount > 0 && (
         <motion.button type="button" onClick={handleUpload} disabled={uploading}
           className="btn-gold w-full" style={{ opacity: uploading ? 0.7 : 1, fontSize: '0.95rem', padding: '14px 20px' }}
