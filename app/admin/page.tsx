@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Users, CheckCircle, XCircle, ChefHat, AlertTriangle, MessageCircle, RefreshCw, ChevronDown, ChevronUp, Baby, User } from 'lucide-react'
+import { Users, CheckCircle, XCircle, ChefHat, AlertTriangle, MessageCircle, RefreshCw, ChevronDown, ChevronUp, Baby, User, Download } from 'lucide-react'
+import * as XLSX from 'xlsx'
 
 // ── Types ──────────────────────────────────────────────────────
 interface Attendee {
@@ -79,6 +80,41 @@ export default function AdminPage() {
   const [filter, setFilter]             = useState<'all' | 'confirmed' | 'declined'>('all')
   const [expandedId, setExpandedId]     = useState<string | null>(null)
   const [search, setSearch]             = useState('')
+
+  // ── Excel export ────────────────────────────────────────────
+  const exportToExcel = useCallback(() => {
+    const confirmed = rsvps.filter(r => r.attending)
+    const declined  = rsvps.filter(r => !r.attending)
+
+    // ── Hoja 1: Confirmados (una fila por ASISTENTE) ──────────
+    const confirmedRows = confirmed.flatMap(r =>
+      (r.rsvp_attendees ?? []).map(a => ({
+        'Grupo / Invitado':  r.guest_name,
+        'Nombre asistente':  a.name,
+        'Tipo':              a.type === 'adult' ? 'Adulto' : 'Niño/a',
+        'Edad':              a.type === 'child' ? (a.age ?? '') : '',
+        'Menú':              MENU_LABELS[a.menu_preference] ?? a.menu_preference,
+        'Alergias':          (a.allergies ?? []).map(al => ALLERGY_LABELS[al] ?? al).join(', '),
+        'Alergia (otra)':    a.allergies_other ?? '',
+        'Mensaje':           r.message ?? '',
+        'Fecha respuesta':   new Date(r.updated_at).toLocaleString('es-ES'),
+      }))
+    )
+
+    // ── Hoja 2: Declinados ────────────────────────────────────
+    const declinedRows = declined.map(r => ({
+      'Nombre':            r.guest_name,
+      'Mensaje':           r.message ?? '',
+      'Fecha respuesta':   new Date(r.updated_at).toLocaleString('es-ES'),
+    }))
+
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(confirmedRows.length ? confirmedRows : [{ Info: 'Sin confirmados aún' }]), 'Confirmados')
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(declinedRows.length   ? declinedRows   : [{ Info: 'Sin declinados aún'  }]), 'Declinados')
+
+    const fecha = new Date().toISOString().slice(0, 10)
+    XLSX.writeFile(wb, `invitados_boda_${fecha}.xlsx`)
+  }, [rsvps])
 
   const fetchData = useCallback(async (authToken: string) => {
     setLoading(true)
@@ -159,10 +195,18 @@ export default function AdminPage() {
               Panel de administración · boda 2026
             </p>
           </div>
-          <button onClick={() => fetchData(token)} disabled={loading}
-            style={{ background: 'none', border: '1px solid var(--gold-light)', borderRadius: 8, padding: '8px 12px', cursor: 'pointer', color: 'var(--gold)' }}>
-            <RefreshCw size={16} style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} />
-          </button>
+          <div className="flex items-center gap-2">
+            {rsvps.length > 0 && (
+              <button onClick={exportToExcel} title="Descargar Excel"
+                style={{ background: 'none', border: '1px solid #1e7e34', borderRadius: 8, padding: '8px 12px', cursor: 'pointer', color: '#1e7e34', display: 'flex', alignItems: 'center', gap: 6, fontFamily: "'Montserrat', sans-serif", fontWeight: 300, fontSize: '0.78rem' }}>
+                <Download size={15} /> Excel
+              </button>
+            )}
+            <button onClick={() => fetchData(token)} disabled={loading}
+              style={{ background: 'none', border: '1px solid var(--gold-light)', borderRadius: 8, padding: '8px 12px', cursor: 'pointer', color: 'var(--gold)' }}>
+              <RefreshCw size={16} style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} />
+            </button>
+          </div>
         </div>
 
         {error && (
@@ -178,12 +222,13 @@ export default function AdminPage() {
 
         {/* ── STATS ── */}
         {summary && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             {[
               { icon: <Users size={20} />,       label: 'Respuestas',  value: summary.totalResponses, color: 'var(--charcoal)' },
               { icon: <CheckCircle size={20} />,  label: 'Confirmados', value: summary.confirmed,      color: 'var(--gold)' },
               { icon: <XCircle size={20} />,      label: 'Declinados',  value: summary.declined,       color: 'var(--rose-dark)' },
-              { icon: <Users size={20} />,        label: 'Personas',    value: summary.totalAttending, color: '#5c9e6a' },
+              { icon: <User size={20} />,         label: 'Adultos',     value: summary.totalAdults,    color: '#5c9e6a' },
+              { icon: <Baby size={20} />,         label: 'Niños',       value: summary.totalChildren,  color: '#7b8fa1' },
             ].map(s => (
               <motion.div key={s.label} className="card-elegant p-4 flex flex-col gap-1"
                 initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>

@@ -48,6 +48,7 @@ export default function PhotoGallery({ photos = PLACEHOLDER_PHOTOS }: PhotoGalle
             <div
               className="w-full h-full flex items-center justify-center"
               style={{
+                position: 'relative',
                 background: `linear-gradient(135deg, #f5e8d0 0%, #e8d5b0 50%, #d4c4a0 100%)`,
                 minHeight: 150,
               }}

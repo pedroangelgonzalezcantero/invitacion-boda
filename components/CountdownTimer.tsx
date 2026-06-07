@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 
 interface TimeLeft {
@@ -170,10 +170,10 @@ export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
         ) : (
           <>
             {['Días', 'Horas', 'Min', 'Seg'].map((label, i) => (
-              <>
+              <React.Fragment key={label}>
                 {i > 0 && separator}
-                <CountdownUnit key={label} value={0} label={label} />
-              </>
+                <CountdownUnit value={0} label={label} />
+              </React.Fragment>
             ))}
           </>
         )}
