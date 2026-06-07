@@ -3,21 +3,22 @@ import { Readable } from 'stream'
 
 export function isDriveConfigured(): boolean {
   return !!(
-    process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL &&
-    process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY &&
+    process.env.GOOGLE_OAUTH_CLIENT_ID &&
+    process.env.GOOGLE_OAUTH_CLIENT_SECRET &&
+    process.env.GOOGLE_OAUTH_REFRESH_TOKEN &&
     process.env.GOOGLE_DRIVE_FOLDER_ID
   )
 }
 
 function getDriveClient() {
-  const auth = new google.auth.GoogleAuth({
-    credentials: {
-      client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      private_key: process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY!.replace(/\\n/g, '\n'),
-    },
-    scopes: ['https://www.googleapis.com/auth/drive.file'],
+  const oauth2Client = new google.auth.OAuth2(
+    process.env.GOOGLE_OAUTH_CLIENT_ID,
+    process.env.GOOGLE_OAUTH_CLIENT_SECRET,
+  )
+  oauth2Client.setCredentials({
+    refresh_token: process.env.GOOGLE_OAUTH_REFRESH_TOKEN,
   })
-  return google.drive({ version: 'v3', auth })
+  return google.drive({ version: 'v3', auth: oauth2Client })
 }
 
 export async function uploadFileToDrive(
@@ -44,4 +45,3 @@ export async function uploadFileToDrive(
     webViewLink: res.data.webViewLink ?? '',
   }
 }
-

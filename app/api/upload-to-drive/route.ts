@@ -26,11 +26,12 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(await fileRes.arrayBuffer())
     const result = await uploadFileToDrive(buffer, fileName, mimeType ?? 'application/octet-stream')
 
+    console.log('✅ Drive upload OK:', result?.fileId, fileName)
     return NextResponse.json({ success: true, driveLink: result?.webViewLink, fileId: result?.fileId })
   } catch (err) {
-    console.error('Drive upload error:', err)
-    // No fallamos la experiencia del usuario — el archivo ya está en Supabase
+    console.error('❌ Drive upload FAILED:', err instanceof Error ? err.message : err)
     return NextResponse.json({ error: 'Error al subir a Drive (el archivo está guardado en la galería)', skip: true }, { status: 200 })
   }
 }
+
 
