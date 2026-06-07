@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
-import { Upload, X, CheckCircle, Film, AlertCircle } from 'lucide-react'
+import { Upload, X, CheckCircle, Film, AlertCircle, Camera } from 'lucide-react'
 
 const MAX_IMAGE = 20 * 1024 * 1024   // 20 MB
 const MAX_VIDEO = 200 * 1024 * 1024  // 200 MB
@@ -17,38 +17,13 @@ interface FileItem {
   preview?: string
 }
 
-const inputStyle: React.CSSProperties = {
-  background: 'rgba(255,255,255,0.85)',
-  border: '1px solid rgba(201,169,110,0.3)',
-  borderRadius: 10,
-  padding: '11px 14px',
-  fontFamily: "'Cormorant Garamond', Georgia, serif",
-  fontSize: '1rem',
-  width: '100%',
-  color: 'var(--charcoal)',
-  outline: 'none',
-}
-
-const labelStyle: React.CSSProperties = {
-  fontSize: '0.7rem',
-  letterSpacing: '0.18em',
-  textTransform: 'uppercase',
-  color: 'var(--charcoal)',
-  opacity: 0.55,
-  fontFamily: "'Montserrat', sans-serif",
-  fontWeight: 300,
-  display: 'block',
-  marginBottom: 8,
-}
-
 export default function UploadForm({ onUploaded }: { onUploaded?: () => void }) {
-  const [guestName, setGuestName]   = useState('')
-  const [message, setMessage]       = useState('')
-  const [files, setFiles]           = useState<FileItem[]>([])
-  const [uploading, setUploading]   = useState(false)
-  const [allDone, setAllDone]       = useState(false)
-  const [progress, setProgress]     = useState({ current: 0, total: 0 })
-  const inputRef                    = useRef<HTMLInputElement>(null)
+  const [files, setFiles]         = useState<FileItem[]>([])
+  const [uploading, setUploading] = useState(false)
+  const [allDone, setAllDone]     = useState(false)
+  const [progress, setProgress]   = useState({ current: 0, total: 0 })
+  const galleryRef                = useRef<HTMLInputElement>(null)
+  const cameraRef                 = useRef<HTMLInputElement>(null)
 
   // ── Add files ────────────────────────────────────────────────
   const addFiles = (selected: File[]) => {
@@ -111,8 +86,6 @@ export default function UploadForm({ onUploaded }: { onUploaded?: () => void }) 
           file_type:    item.file.type.startsWith('video/') ? 'video' : 'image',
           file_name:    item.file.name,
           storage_path: path,
-          guest_name:   guestName.trim() || null,
-          message:      message.trim()   || null,
         })
 
         if (dbErr) throw dbErr
@@ -139,21 +112,17 @@ export default function UploadForm({ onUploaded }: { onUploaded?: () => void }) 
         initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
         className="text-center py-10 flex flex-col items-center gap-4"
       >
-        <motion.div
-          initial={{ scale: 0 }} animate={{ scale: 1 }}
+        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}
           transition={{ type: 'spring', stiffness: 200, delay: 0.1 }}
-          style={{ fontSize: 64 }}
-        >🎊</motion.div>
+          style={{ fontSize: 64 }}>🎊</motion.div>
         <h3 style={{ fontSize: '1.8rem', color: 'var(--gold)', fontWeight: 300, fontStyle: 'italic', fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
           ¡Gracias por compartir!
         </h3>
         <p style={{ color: 'var(--charcoal)', opacity: 0.65, fontFamily: "'Montserrat', sans-serif", fontWeight: 300, fontSize: '0.88rem', maxWidth: 280, lineHeight: 1.7 }}>
           Tus fotos y vídeos forman parte de este día tan especial para nosotros 💍
         </p>
-        <button
-          onClick={() => { setAllDone(false); setFiles([]); setGuestName(''); setMessage('') }}
-          className="btn-gold mt-2" style={{ fontSize: '0.85rem' }}
-        >
+        <button onClick={() => { setAllDone(false); setFiles([]) }}
+          className="btn-gold mt-2" style={{ fontSize: '0.85rem' }}>
           Subir más fotos
         </button>
       </motion.div>
@@ -163,44 +132,56 @@ export default function UploadForm({ onUploaded }: { onUploaded?: () => void }) 
   const pendingCount = files.filter(f => f.status === 'pending').length
 
   return (
-    <div className="flex flex-col gap-5 w-full">
+    <div className="flex flex-col gap-4 w-full">
 
-      {/* Nombre (opcional) */}
-      <div>
-        <label style={labelStyle}>Tu nombre (opcional)</label>
-        <input value={guestName} onChange={e => setGuestName(e.target.value)}
-          placeholder="¿Cómo te llamas?" style={inputStyle} />
-      </div>
-
-      {/* Mensaje (opcional) */}
-      <div>
-        <label style={labelStyle}>Un mensaje para los novios (opcional)</label>
-        <input value={message} onChange={e => setMessage(e.target.value)}
-          placeholder="¡Felicidades! 💌" style={inputStyle} />
-      </div>
-
-      {/* Input oculto */}
-      <input ref={inputRef} type="file" multiple accept="image/*,video/*"
+      {/* Inputs ocultos */}
+      {/* Galería: múltiples archivos sin capture */}
+      <input ref={galleryRef} type="file" multiple accept="image/*,video/*"
+        onChange={handleFileChange} style={{ display: 'none' }} />
+      {/* Cámara: un archivo con capture (móvil) */}
+      <input ref={cameraRef} type="file" accept="image/*,video/*" capture="environment"
         onChange={handleFileChange} style={{ display: 'none' }} />
 
-      {/* Botón seleccionar */}
-      <motion.button type="button" onClick={() => inputRef.current?.click()}
-        disabled={uploading}
-        className="w-full py-5 rounded-2xl flex flex-col items-center justify-center gap-2"
-        style={{
-          border: '2px dashed rgba(201,169,110,0.5)',
-          background: 'rgba(201,169,110,0.04)',
-          color: 'var(--gold)',
-          fontFamily: "'Montserrat', sans-serif", fontWeight: 300,
-          fontSize: '0.9rem', cursor: 'pointer', letterSpacing: '0.05em',
-        }}
-        whileHover={{ borderColor: 'var(--gold)', background: 'rgba(201,169,110,0.09)' }}
-        whileTap={{ scale: 0.98 }}
-      >
-        <Upload size={22} />
-        <span>{files.length > 0 ? 'Añadir más archivos' : 'Seleccionar fotos y vídeos'}</span>
-        <span style={{ fontSize: '0.72rem', opacity: 0.5 }}>Fotos hasta 20MB · Vídeos hasta 200MB</span>
-      </motion.button>
+      {/* Botones de selección */}
+      <div className="grid grid-cols-2 gap-3">
+        {/* Carrete / galería */}
+        <motion.button type="button" onClick={() => galleryRef.current?.click()}
+          disabled={uploading}
+          className="py-5 rounded-2xl flex flex-col items-center justify-center gap-2"
+          style={{
+            border: '2px dashed rgba(201,169,110,0.4)',
+            background: 'rgba(201,169,110,0.04)',
+            color: 'var(--gold)',
+            fontFamily: "'Montserrat', sans-serif", fontWeight: 300,
+            fontSize: '0.78rem', cursor: 'pointer', letterSpacing: '0.04em',
+          }}
+          whileHover={{ borderColor: 'var(--gold)', background: 'rgba(201,169,110,0.09)' }}
+          whileTap={{ scale: 0.97 }}
+        >
+          <Upload size={22} />
+          <span>Carrete</span>
+          <span style={{ fontSize: '0.65rem', opacity: 0.5 }}>Fotos y vídeos</span>
+        </motion.button>
+
+        {/* Cámara directa */}
+        <motion.button type="button" onClick={() => cameraRef.current?.click()}
+          disabled={uploading}
+          className="py-5 rounded-2xl flex flex-col items-center justify-center gap-2"
+          style={{
+            border: '2px solid rgba(201,169,110,0.35)',
+            background: 'rgba(201,169,110,0.08)',
+            color: 'var(--gold)',
+            fontFamily: "'Montserrat', sans-serif", fontWeight: 300,
+            fontSize: '0.78rem', cursor: 'pointer', letterSpacing: '0.04em',
+          }}
+          whileHover={{ borderColor: 'var(--gold)', background: 'rgba(201,169,110,0.14)' }}
+          whileTap={{ scale: 0.97 }}
+        >
+          <Camera size={22} />
+          <span>Cámara</span>
+          <span style={{ fontSize: '0.65rem', opacity: 0.5 }}>Foto o vídeo</span>
+        </motion.button>
+      </div>
 
       {/* Lista de archivos */}
       <AnimatePresence>
@@ -221,6 +202,7 @@ export default function UploadForm({ onUploaded }: { onUploaded?: () => void }) 
               <div className="flex-shrink-0 rounded-xl overflow-hidden"
                 style={{ width: 48, height: 48, background: 'rgba(201,169,110,0.1)' }}>
                 {item.preview ? (
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img src={item.preview} alt="" className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
@@ -239,7 +221,7 @@ export default function UploadForm({ onUploaded }: { onUploaded?: () => void }) 
                   fontFamily: "'Montserrat', sans-serif",
                 }}>
                   {isUploading ? 'Subiendo…'
-                    : isDone   ? '✓ Subido'
+                    : isDone   ? '✓ Guardado'
                     : isError  ? `✗ ${item.error}`
                     : `${(item.file.size / 1024 / 1024).toFixed(1)} MB`}
                 </p>
@@ -258,8 +240,8 @@ export default function UploadForm({ onUploaded }: { onUploaded?: () => void }) 
                   <X size={16} color="rgba(44,44,44,0.35)" />
                 </button>
               )}
-              {isDone && <CheckCircle size={18} color="#5c9e6a" style={{ flexShrink: 0 }} />}
-              {isError && <AlertCircle size={18} color="#c0392b" style={{ flexShrink: 0 }} />}
+              {isDone  && <CheckCircle size={18} color="#5c9e6a"  style={{ flexShrink: 0 }} />}
+              {isError && <AlertCircle size={18} color="#c0392b"  style={{ flexShrink: 0 }} />}
             </motion.div>
           )
         })}
@@ -291,4 +273,3 @@ export default function UploadForm({ onUploaded }: { onUploaded?: () => void }) 
     </div>
   )
 }
-
