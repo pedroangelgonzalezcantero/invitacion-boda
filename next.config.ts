@@ -8,10 +8,15 @@ if (process.env.NODE_ENV !== "production") {
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [],
-    unoptimized: true, // Allow local /public/images without remote domains
+    unoptimized: true,
   },
-  // Vercel deploy optimization
   output: "standalone",
+  // Permitir body grande para subida de archivos al servidor (Drive)
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '200mb',
+    },
+  },
 };
 
 export default nextConfig;

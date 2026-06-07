@@ -92,6 +92,17 @@ export default function UploadForm({ onUploaded }: { onUploaded?: () => void }) 
 
         setFiles(prev => prev.map(f => f.id === item.id ? { ...f, status: 'done' } : f))
         doneCount++
+
+        // ── Subir a Google Drive en paralelo (no bloquea al usuario) ──
+        fetch('/api/upload-to-drive', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fileUrl:  publicUrl,
+            fileName: item.file.name,
+            mimeType: item.file.type || 'application/octet-stream',
+          }),
+        }).catch(() => {/* silencioso — el archivo ya está en Supabase */})
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'Error desconocido'
         setFiles(prev => prev.map(f => f.id === item.id ? { ...f, status: 'error', error: msg } : f))
@@ -273,3 +284,4 @@ export default function UploadForm({ onUploaded }: { onUploaded?: () => void }) 
     </div>
   )
 }
+
