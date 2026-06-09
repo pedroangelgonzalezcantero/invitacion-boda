@@ -17,8 +17,8 @@ function BackButton() {
   if (!fromInvite) return null
 
   return (
-    <motion.a
-      href="/"
+    <motion.button
+      onClick={() => window.history.back()}
       className="inline-flex items-center gap-1"
       style={{
         position: 'absolute',
@@ -30,7 +30,7 @@ function BackButton() {
         fontWeight: 300,
         fontSize: '0.78rem',
         letterSpacing: '0.06em',
-        textDecoration: 'none',
+        cursor: 'pointer',
         padding: '6px 12px 6px 8px',
         borderRadius: 50,
         background: 'rgba(255,255,255,0.1)',
@@ -42,7 +42,7 @@ function BackButton() {
     >
       <ChevronLeft size={14} />
       Volver
-    </motion.a>
+    </motion.button>
   )
 }
 
