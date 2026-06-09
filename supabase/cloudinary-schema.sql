@@ -14,21 +14,23 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- ────────────────────────────────────────────────────────────
 -- 2. Tabla principal: uploads
 --    storage_path = public_id de Cloudinary (para thumbnails)
+--    thumb_url    = URL pre-generada del thumbnail (CDN-cached)
 --    user_name    = nombre opcional del invitado
 -- ────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS uploads (
   id           UUID        DEFAULT uuid_generate_v4() PRIMARY KEY,
   created_at   TIMESTAMPTZ DEFAULT NOW() NOT NULL,
-  file_url     TEXT        NOT NULL,                          -- secure_url de Cloudinary
+  file_url     TEXT        NOT NULL,                          -- secure_url de Cloudinary (original)
   file_type    TEXT        NOT NULL CHECK (file_type IN ('image', 'video')),
   file_name    TEXT,
   storage_path TEXT        NOT NULL,                          -- public_id de Cloudinary
+  thumb_url    TEXT,                                          -- URL thumbnail pre-generada (evita transformaciones en galería)
   user_name    TEXT,                                          -- nombre del invitado (opcional)
   guest_name   TEXT,                                          -- alias legacy (compat.)
   message      TEXT
 );
 
--- Si la tabla ya existía, añade la columna user_name si no está:
+-- Si la tabla ya existía, añade las columnas nuevas si no están:
 DO $$
 BEGIN
   IF NOT EXISTS (
@@ -36,6 +38,12 @@ BEGIN
     WHERE table_name = 'uploads' AND column_name = 'user_name'
   ) THEN
     ALTER TABLE uploads ADD COLUMN user_name TEXT;
+  END IF;
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'uploads' AND column_name = 'thumb_url'
+  ) THEN
+    ALTER TABLE uploads ADD COLUMN thumb_url TEXT;
   END IF;
 END $$;
 

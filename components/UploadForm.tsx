@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
-import { uploadToCloudinary, validateFileSize } from '@/lib/cloudinary'
+import { uploadToCloudinary, validateFileSize, getThumbUrl } from '@/lib/cloudinary'
 import { Upload, X, CheckCircle, Film, AlertCircle, Camera } from 'lucide-react'
 
 interface FileItem {
@@ -24,11 +24,16 @@ async function uploadOne(
   onStatus(item.id, 'uploading')
   try {
     const result = await uploadToCloudinary(item.file, (pct) => onProgress(item.id, pct))
+    // Generamos el thumb_url UNA SOLA VEZ y lo guardamos en Supabase.
+    // La galería usará esta URL estática → 0 transformaciones en cada visita.
+    const fileType = result.resource_type === 'video' ? 'video' : 'image'
+    const thumbUrl = getThumbUrl(result.public_id, fileType)
     const { error: dbErr } = await supabase.from('uploads').insert({
       file_url:     result.secure_url,
-      file_type:    result.resource_type === 'video' ? 'video' : 'image',
+      file_type:    fileType,
       file_name:    item.file.name,
       storage_path: result.public_id,
+      thumb_url:    thumbUrl,            // ← URL pre-computada del miniatura
     })
     if (dbErr) console.warn('Supabase insert:', dbErr.message)
     onStatus(item.id, 'done')
@@ -67,11 +72,21 @@ export default function UploadForm({ onUploaded }: { onUploaded?: () => void }) 
     e.target.value = ''
   }
 
-  // Cámara: añade el archivo a la lista (igual que el carrete), el usuario decide cuándo subir
-  const handleCameraCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const items = Array.from(e.target.files ?? []).map(buildItem)
-    setFiles(prev => [...prev, ...items])
+  // Cámara: captura la foto/vídeo y lo sube AUTOMÁTICAMENTE
+  const handleCameraCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = Array.from(e.target.files ?? [])
     e.target.value = ''
+    if (selected.length === 0) return
+
+    const item = buildItem(selected[0])
+    setFiles(prev => [...prev, item])
+
+    if (item.status === 'error') return  // tamaño inválido
+
+    setUploading(true)
+    const ok = await uploadOne(item, setProgress, setStatus)
+    setUploading(false)
+    if (ok) { setAllDone(true); onUploaded?.() }
   }
 
   const removeFile = (id: string) => {
@@ -145,7 +160,7 @@ export default function UploadForm({ onUploaded }: { onUploaded?: () => void }) 
           style={{ border: '2px solid rgba(201,169,110,0.35)', background: 'rgba(201,169,110,0.08)', color: 'var(--gold)', fontFamily: "'Montserrat', sans-serif", fontWeight: 300, fontSize: '0.78rem', cursor: 'pointer' }}
           whileHover={{ borderColor: 'var(--gold)', background: 'rgba(201,169,110,0.14)' }} whileTap={{ scale: 0.97 }}>
           <Camera size={22} />
-          <span>Cámara</span>
+          <span>{uploading ? 'Subiendo…' : 'Cámara'}</span>
           <span style={{ fontSize: '0.65rem', opacity: 0.5 }}>Foto al instante</span>
         </motion.button>
       </div>
@@ -176,7 +191,10 @@ export default function UploadForm({ onUploaded }: { onUploaded?: () => void }) 
                   {item.file.name}
                 </p>
                 <p className="text-xs" style={{ color: isError ? '#c0392b' : isDone ? '#5c9e6a' : 'rgba(44,44,44,0.45)', fontFamily: "'Montserrat', sans-serif" }}>
-                  {isUploading ? `Subiendo… ${item.progress}%`
+                  {isUploading
+                    ? item.progress < 10
+                      ? '⚙️ Comprimiendo…'
+                      : `Subiendo… ${item.progress}%`
                     : isDone   ? '✓ Guardado'
                     : isError  ? `✗ ${item.error}`
                     : `${(item.file.size / 1024 / 1024).toFixed(1)} MB`}

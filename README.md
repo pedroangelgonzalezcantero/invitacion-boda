@@ -1,6 +1,6 @@
 # 💍 Invitación Digital de Boda
 
-Una aplicación web elegante para gestionar invitaciones de boda. Next.js 14, TailwindCSS, Framer Motion y Supabase.
+    Una aplicación web elegante para gestionar invitaciones de boda. Next.js 14, TailwindCSS, Framer Motion y Supabase.
 
 ## ✨ Características
 

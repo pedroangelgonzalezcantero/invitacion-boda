@@ -32,17 +32,7 @@ const weddingTime = new Date(WEDDING_DATE).toLocaleTimeString('es-ES', {
 })
 
 export default function Home() {
-  const [envelopeOpened, setEnvelopeOpened] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return sessionStorage.getItem('envelopeOpened') === 'true'
-    }
-    return false
-  })
-
-  const handleEnvelopeOpen = () => {
-    sessionStorage.setItem('envelopeOpened', 'true')
-    setEnvelopeOpened(true)
-  }
+  const [envelopeOpened, setEnvelopeOpened] = useState(false)
 
   return (
     <>
@@ -50,7 +40,7 @@ export default function Home() {
       <AnimatePresence>
         {!envelopeOpened && (
           <EnvelopeAnimation
-            onOpen={handleEnvelopeOpen}
+            onOpen={() => setEnvelopeOpened(true)}
           />
         )}
       </AnimatePresence>
@@ -256,7 +246,7 @@ export default function Home() {
                       year: '2015',
                       emoji: '☕',
                       title: 'El primer encuentro',
-                      text: 'Nuestros caminos se cruzaron en la playa por primera vez cuando éramos adolescentes, sin saber lo que el destino nos tenía preparado. Años después, en las navidades de 2014, volvimos a encontrarnos en una comida familiar. Una mirada, una sonrisa… y el mundo se detuvo por un instante. Ninguno de los dos imaginaba que ese día cambiaría nuestras vidas para siempre y, desde ese momento, no nos hemos vuelto a separar.'
+                      text: 'Nuestros caminos se cruzaron en la playa por primera vez cuando eramos adolescentes, sin saber lo que el destino nos tenía preparado. Años después, en las navidades de 2014, volvimos a encontrarnos en una comida familiar. Una mirada, una sonrisa… y el mundo se detuvo por un instante. Ninguno de los dos imaginaba que ese día cambiaría nuestras vidas para siempre y, desde ese momento, no nos hemos vuelto a separar.'
                     },
                     {
                       year: '2016',

@@ -16,9 +16,9 @@ export default function UploadGallery() {
     if (showRefresh) setRefreshing(true)
     const { data } = await supabase
       .from('uploads')
-      .select('id,file_url,storage_path,file_type,file_name,user_name,created_at')
+      .select('id,file_url,storage_path,file_type,file_name,user_name,created_at,thumb_url')
       .order('created_at', { ascending: false })
-      .limit(200)
+      .limit(100)   // Máx 100 items — reduce ancho de banda de Supabase y Cloudinary
     if (data) setUploads(data as MediaRecord[])
     setLoading(false)
     setRefreshing(false)
@@ -26,7 +26,9 @@ export default function UploadGallery() {
 
   useEffect(() => {
     fetchUploads()
-    const interval = setInterval(() => fetchUploads(), 30_000)
+    // Refresco cada 5 minutos — en el día de la boda hay actividad real,
+    // pero 30 s era excesivo y generaba fetches innecesarios a Supabase.
+    const interval = setInterval(() => fetchUploads(), 5 * 60_000)
     return () => clearInterval(interval)
   }, [fetchUploads])
 
@@ -76,12 +78,16 @@ export default function UploadGallery() {
             style={{ aspectRatio: '1/1', borderRadius: 16, background: 'rgba(201,169,110,0.08)' }}
             onClick={() => setSelected(upload)}
           >
-            {/* Thumbnail optimizado de Cloudinary (400×400, q_auto, f_auto) */}
+            {/* Thumbnail:
+                ✅ Usa thumb_url guardada en Supabase (URL estática, CDN-cached, 0 transformaciones nuevas).
+                ✅ Fallback a getThumbUrl() solo si el registro es antiguo y no tiene thumb_url.
+                ✅ loading="lazy" → el navegador solo descarga las imágenes visibles. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={getThumbUrl(upload.storage_path, upload.file_type)}
+              src={upload.thumb_url ?? getThumbUrl(upload.storage_path, upload.file_type)}
               alt={upload.file_name ?? ''}
               loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
             />
 
