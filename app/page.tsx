@@ -32,7 +32,17 @@ const weddingTime = new Date(WEDDING_DATE).toLocaleTimeString('es-ES', {
 })
 
 export default function Home() {
-  const [envelopeOpened, setEnvelopeOpened] = useState(false)
+  const [envelopeOpened, setEnvelopeOpened] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('envelopeOpened') === 'true'
+    }
+    return false
+  })
+
+  const handleEnvelopeOpen = () => {
+    sessionStorage.setItem('envelopeOpened', 'true')
+    setEnvelopeOpened(true)
+  }
 
   return (
     <>
@@ -40,7 +50,7 @@ export default function Home() {
       <AnimatePresence>
         {!envelopeOpened && (
           <EnvelopeAnimation
-            onOpen={() => setEnvelopeOpened(true)}
+            onOpen={handleEnvelopeOpen}
           />
         )}
       </AnimatePresence>

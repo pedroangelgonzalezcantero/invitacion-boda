@@ -67,21 +67,11 @@ export default function UploadForm({ onUploaded }: { onUploaded?: () => void }) 
     e.target.value = ''
   }
 
-  // Cámara: captura la foto/vídeo y lo sube AUTOMÁTICAMENTE
-  const handleCameraCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selected = Array.from(e.target.files ?? [])
+  // Cámara: añade el archivo a la lista (igual que el carrete), el usuario decide cuándo subir
+  const handleCameraCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const items = Array.from(e.target.files ?? []).map(buildItem)
+    setFiles(prev => [...prev, ...items])
     e.target.value = ''
-    if (selected.length === 0) return
-
-    const item = buildItem(selected[0])
-    setFiles(prev => [...prev, item])
-
-    if (item.status === 'error') return  // tamaño inválido
-
-    setUploading(true)
-    const ok = await uploadOne(item, setProgress, setStatus)
-    setUploading(false)
-    if (ok) { setAllDone(true); onUploaded?.() }
   }
 
   const removeFile = (id: string) => {
@@ -155,7 +145,7 @@ export default function UploadForm({ onUploaded }: { onUploaded?: () => void }) 
           style={{ border: '2px solid rgba(201,169,110,0.35)', background: 'rgba(201,169,110,0.08)', color: 'var(--gold)', fontFamily: "'Montserrat', sans-serif", fontWeight: 300, fontSize: '0.78rem', cursor: 'pointer' }}
           whileHover={{ borderColor: 'var(--gold)', background: 'rgba(201,169,110,0.14)' }} whileTap={{ scale: 0.97 }}>
           <Camera size={22} />
-          <span>{uploading ? 'Subiendo…' : 'Cámara'}</span>
+          <span>Cámara</span>
           <span style={{ fontSize: '0.65rem', opacity: 0.5 }}>Foto al instante</span>
         </motion.button>
       </div>
