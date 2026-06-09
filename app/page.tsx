@@ -246,7 +246,7 @@ export default function Home() {
                       year: '2015',
                       emoji: '☕',
                       title: 'El primer encuentro',
-                      text: 'Nuestros caminos se cruzaron en la playa por primera vez cuando eramos adolescentes, sin saber lo que el destino nos tenía preparado. Años después, en las navidades de 2014, volvimos a encontrarnos en una comida familiar. Una mirada, una sonrisa… y el mundo se detuvo por un instante. Ninguno de los dos imaginaba que ese día cambiaría nuestras vidas para siempre y, desde ese momento, no nos hemos vuelto a separar.'
+                      text: 'Nuestros caminos se cruzaron en la playa por primera vez cuando éramos adolescentes, sin saber lo que el destino nos tenía preparado. Años después, en las navidades de 2014, volvimos a encontrarnos en una comida familiar. Una mirada, una sonrisa… y el mundo se detuvo por un instante. Ninguno de los dos imaginaba que ese día cambiaría nuestras vidas para siempre y, desde ese momento, no nos hemos vuelto a separar.'
                     },
                     {
                       year: '2016',
@@ -393,7 +393,7 @@ export default function Home() {
                 <p style={{ color: 'rgba(255,255,255,0.5)', fontFamily: "'Montserrat', sans-serif", fontWeight: 300, fontSize: '0.88rem', lineHeight: 1.7, maxWidth: 320 }}>
                   Sube tus fotos y vídeos del gran día y forma parte de nuestro álbum compartido 📸
                 </p>
-                <motion.a href="/recuerdos"
+                <motion.a href="/recuerdos?ref=invite"
                   className="inline-flex items-center gap-3 px-8 py-4 rounded-full"
                   style={{
                     background: 'var(--gold)',

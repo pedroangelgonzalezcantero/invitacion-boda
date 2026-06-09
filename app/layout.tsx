@@ -7,6 +7,10 @@ const groom = process.env.NEXT_PUBLIC_GROOM_NAME || "Alejandro";
 export const metadata: Metadata = {
   title: `${bride} & ${groom} — Nuestra Boda`,
   description: `Únete a nosotros para celebrar el matrimonio de ${bride} y ${groom}. Reserva tu lugar en este día tan especial.`,
+  icons: {
+    icon: "/images/sello.png",
+    apple: "/images/sello.png",
+  },
   openGraph: {
     title: `${bride} & ${groom} — Nuestra Boda`,
     description: `Estás invitado a nuestra boda. Confirma tu asistencia.`,
