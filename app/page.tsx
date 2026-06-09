@@ -393,7 +393,7 @@ export default function Home() {
                 <p style={{ color: 'rgba(255,255,255,0.5)', fontFamily: "'Montserrat', sans-serif", fontWeight: 300, fontSize: '0.88rem', lineHeight: 1.7, maxWidth: 320 }}>
                   Sube tus fotos y vídeos del gran día y forma parte de nuestro álbum compartido 📸
                 </p>
-                <motion.a href="/recuerdos?ref=invite"
+                <motion.a href="/recuerdos"
                   className="inline-flex items-center gap-3 px-8 py-4 rounded-full"
                   style={{
                     background: 'var(--gold)',

@@ -1,50 +1,13 @@
 'use client'
 
-import { useState, useCallback, Suspense } from 'react'
+import { useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { Camera, Images, ChevronLeft } from 'lucide-react'
-import { useSearchParams } from 'next/navigation'
+import { Camera, Images } from 'lucide-react'
 import UploadForm from '@/components/UploadForm'
 import UploadGallery from '@/components/UploadGallery'
 
 const BRIDE = process.env.NEXT_PUBLIC_BRIDE_NAME || 'Pedro Ángel'
 const GROOM = process.env.NEXT_PUBLIC_GROOM_NAME || 'Mari'
-
-function BackButton() {
-  const searchParams = useSearchParams()
-  const fromInvite = searchParams.get('ref') === 'invite'
-
-  if (!fromInvite) return null
-
-  return (
-    <motion.button
-      onClick={() => window.history.back()}
-      className="inline-flex items-center gap-1"
-      style={{
-        position: 'absolute',
-        top: 'max(16px, 3vh)',
-        left: 20,
-        zIndex: 20,
-        color: 'rgba(255,255,255,0.7)',
-        fontFamily: "'Montserrat', sans-serif",
-        fontWeight: 300,
-        fontSize: '0.78rem',
-        letterSpacing: '0.06em',
-        cursor: 'pointer',
-        padding: '6px 12px 6px 8px',
-        borderRadius: 50,
-        background: 'rgba(255,255,255,0.1)',
-        border: '1px solid rgba(255,255,255,0.18)',
-        backdropFilter: 'blur(4px)',
-      }}
-      whileHover={{ background: 'rgba(255,255,255,0.18)' }}
-      whileTap={{ scale: 0.96 }}
-    >
-      <ChevronLeft size={14} />
-      Volver
-    </motion.button>
-  )
-}
 
 export default function RecuerdosPage() {
   const [galleryKey, setGalleryKey]   = useState(0)
@@ -60,10 +23,6 @@ export default function RecuerdosPage() {
       {/* ── Hero ── */}
       <div className="relative overflow-hidden"
         style={{ background: 'linear-gradient(135deg, var(--charcoal) 0%, #3d3228 100%)', padding: 'clamp(48px, 10vw, 88px) 24px clamp(40px, 8vw, 72px)' }}>
-        {/* Botón volver (solo cuando viene desde la invitación) */}
-        <Suspense>
-          <BackButton />
-        </Suspense>
         {/* Decoraciones */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div style={{ position: 'absolute', top: -60, right: -60, width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle, rgba(201,169,110,0.12) 0%, transparent 70%)' }} />
