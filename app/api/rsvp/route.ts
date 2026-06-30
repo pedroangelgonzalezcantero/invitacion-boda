@@ -86,7 +86,10 @@ export async function POST(request: NextRequest) {
     )
   } catch (err) {
     console.error('RSVP POST error:', err)
-    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
+    return NextResponse.json({
+      error: 'Error interno del servidor',
+      detail: err instanceof Error ? err.message : String(err),
+    }, { status: 500 })
   }
 }
 

@@ -46,7 +46,10 @@ export async function GET() {
     return NextResponse.json(data)
   } catch (err) {
     console.error('[GET /api/uploads] Error:', err)
-    return NextResponse.json([], { status: 500 })
+    return NextResponse.json(
+      { error: 'Error interno', detail: err instanceof Error ? err.message : String(err) },
+      { status: 500 }
+    )
   }
 }
 
@@ -80,4 +83,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Error al guardar el upload' }, { status: 500 })
   }
 }
+
 
