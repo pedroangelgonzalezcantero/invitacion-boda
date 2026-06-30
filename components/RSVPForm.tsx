@@ -607,7 +607,7 @@ export default function RSVPForm() {
             <span style={{ fontSize: 48 }}>😕</span>
             <div className="flex flex-col gap-2 w-full">
               <ErrorBox msg={apiError} />
-              {apiError.toLowerCase().includes('supabase') && (
+              {(apiError.toLowerCase().includes('database') || apiError.toLowerCase().includes('prisma')) && (
                 <div
                   className="p-4 rounded-xl text-left"
                   style={{ background: 'rgba(255,243,205,0.8)', border: '1px solid rgba(255,193,7,0.4)' }}
@@ -616,10 +616,10 @@ export default function RSVPForm() {
                     💡 Para que el formulario funcione:
                   </p>
                   <ol style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300, fontSize: '0.75rem', color: '#7d6608', lineHeight: 1.8, paddingLeft: 16, margin: 0 }}>
-                    <li>Ve a <strong>supabase.com</strong> → crea un proyecto</li>
-                    <li>Ejecuta el SQL de <code>supabase/schema.sql</code></li>
-                    <li>Copia la URL y clave en <code>.env.local</code></li>
-                    <li>Reinicia el servidor (<code>npm run dev</code>)</li>
+                    <li>Configura <code>DATABASE_URL</code> en Vercel → Settings → Environment Variables</li>
+                    <li>Formato: <code>mysql://USER:PASS@srv495.hstgr.io:3306/BBDD</code></li>
+                    <li>Ejecuta el SQL de <code>supabase/mysql-migration.sql</code> en Hostinger</li>
+                    <li>Despliega de nuevo en Vercel</li>
                   </ol>
                 </div>
               )}

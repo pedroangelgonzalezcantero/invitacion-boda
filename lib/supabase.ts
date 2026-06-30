@@ -1,10 +1,14 @@
-import { createClient } from '@supabase/supabase-js'
+/**
+ * lib/supabase.ts — ELIMINADO
+ * ─────────────────────────────────────────────────────────────
+ * Este archivo ya no exporta nada. Supabase ha sido reemplazado
+ * por Prisma ORM + MySQL (Hostinger).
+ *
+ * Usa en su lugar:
+ *   import { prisma } from '@/lib/prisma'
+ *
+ * Documentación de migración: supabase/MIGRATION.md
+ * ─────────────────────────────────────────────────────────────
+ */
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-
-// Untyped client for API routes (avoids complex generic type issues)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const supabase = createClient<any>(supabaseUrl, supabaseAnonKey)
-
-
+export {}  // módulo vacío — evita errores de importación residuales

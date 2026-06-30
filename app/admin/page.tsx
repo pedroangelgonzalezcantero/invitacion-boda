@@ -134,7 +134,7 @@ export default function AdminPage() {
       setSummary(json.summary)
       setRsvps(json.rsvps ?? [])
       if (json.demo) {
-        setError('⚙️ Supabase no está configurado. Las respuestas no se guardan aún. Configura NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY en Vercel.')
+        setError('⚙️ Base de datos no configurada. Configura DATABASE_URL en Vercel → Settings → Environment Variables.')
       }
     } catch {
       setError('Error de red')

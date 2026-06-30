@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { prisma } from '@/lib/prisma'
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
@@ -9,14 +9,20 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'El código de invitación es requerido' }, { status: 400 })
   }
 
-  const { data: guest, error } = await supabase
-    .from('guests')
-    .select('id, name, max_companions, is_active')
-    .eq('code', code.toUpperCase())
-    .eq('is_active', true)
-    .single()
+  const guest = await prisma.guest.findFirst({
+    where: {
+      code:     code.toUpperCase(),
+      isActive: true,
+    },
+    select: {
+      id:            true,
+      name:          true,
+      maxCompanions: true,
+      isActive:      true,
+    },
+  })
 
-  if (error || !guest) {
+  if (!guest) {
     return NextResponse.json(
       { error: 'Código no válido o invitado no encontrado. Comprueba tu invitación.' },
       { status: 404 }
@@ -24,16 +30,22 @@ export async function GET(request: NextRequest) {
   }
 
   // Check if already responded
-  const { data: existingRSVP } = await supabase
-    .from('rsvp_responses')
-    .select('id, attending, updated_at')
-    .eq('guest_id', guest.id)
-    .single()
+  const existingRSVP = await prisma.rsvpResponse.findFirst({
+    where:  { guestId: guest.id },
+    select: { id: true, attending: true, updatedAt: true },
+  })
 
   return NextResponse.json({
-    guest,
+    guest: {
+      id:             guest.id,
+      name:           guest.name,
+      max_companions: guest.maxCompanions,
+      is_active:      guest.isActive,
+    },
     alreadyResponded: !!existingRSVP,
-    existingRSVP: existingRSVP || null,
+    existingRSVP: existingRSVP
+      ? { id: existingRSVP.id, attending: existingRSVP.attending, updated_at: existingRSVP.updatedAt }
+      : null,
   })
 }
 

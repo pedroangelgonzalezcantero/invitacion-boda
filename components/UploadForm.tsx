@@ -2,7 +2,6 @@
 
 import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { supabase } from '@/lib/supabase'
 import { uploadToCloudinary, validateFileSize, getThumbUrl } from '@/lib/cloudinary'
 import { Upload, X, CheckCircle, Film, AlertCircle, Camera } from 'lucide-react'
 
@@ -15,7 +14,7 @@ interface FileItem {
   preview?: string
 }
 
-// ── Sube UN archivo a Cloudinary y lo guarda en Supabase ─────────────────────
+// ── Sube UN archivo a Cloudinary y guarda metadatos en DB via API ────────────
 async function uploadOne(
   item: FileItem,
   onProgress: (id: string, pct: number) => void,
@@ -24,18 +23,28 @@ async function uploadOne(
   onStatus(item.id, 'uploading')
   try {
     const result = await uploadToCloudinary(item.file, (pct) => onProgress(item.id, pct))
-    // Generamos el thumb_url UNA SOLA VEZ y lo guardamos en Supabase.
+    // Generamos el thumb_url UNA SOLA VEZ y lo guardamos en la BD via API.
     // La galería usará esta URL estática → 0 transformaciones en cada visita.
     const fileType = result.resource_type === 'video' ? 'video' : 'image'
     const thumbUrl = getThumbUrl(result.public_id, fileType)
-    const { error: dbErr } = await supabase.from('uploads').insert({
-      file_url:     result.secure_url,
-      file_type:    fileType,
-      file_name:    item.file.name,
-      storage_path: result.public_id,
-      thumb_url:    thumbUrl,            // ← URL pre-computada del miniatura
+
+    // Guardar metadatos via API route (Prisma no puede usarse en el cliente)
+    const res = await fetch('/api/uploads', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({
+        file_url:     result.secure_url,
+        file_type:    fileType,
+        file_name:    item.file.name,
+        storage_path: result.public_id,
+        thumb_url:    thumbUrl,
+      }),
     })
-    if (dbErr) console.warn('Supabase insert:', dbErr.message)
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}))
+      console.warn('API uploads insert:', err)
+    }
+
     onStatus(item.id, 'done')
     return true
   } catch (err) {

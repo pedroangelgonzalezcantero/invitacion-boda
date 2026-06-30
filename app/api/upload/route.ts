@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { uploadFileToDrive, isDriveConfigured } from '@/lib/googleDrive'
-import { supabase } from '@/lib/supabase'
+import { prisma } from '@/lib/prisma'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -40,15 +40,19 @@ export async function POST(request: NextRequest) {
 
     if (!result) throw new Error('uploadFileToDrive devolvió null')
 
-    // Guardar solo metadatos en Supabase DB (los archivos van a Drive, no a Storage)
-    const { error: dbErr } = await supabase.from('uploads').insert({
-      file_url:     result.viewUrl,
-      file_type:    isVideo ? 'video' : 'image',
-      file_name:    file.name,
-      storage_path: result.fileId,  // fileId de Drive
-    })
-
-    if (dbErr) console.warn('⚠️ DB insert error:', dbErr.message)
+    // Guardar solo metadatos en MySQL (los archivos van a Drive, no a ningún Storage)
+    try {
+      await prisma.upload.create({
+        data: {
+          fileUrl:     result.viewUrl,
+          fileType:    isVideo ? 'video' : 'image',
+          fileName:    file.name,
+          storagePath: result.fileId, // fileId de Google Drive
+        },
+      })
+    } catch (dbErr) {
+      console.warn('⚠️ DB insert error:', dbErr)
+    }
 
     console.log('✅ Drive upload OK:', result.fileId, file.name)
 

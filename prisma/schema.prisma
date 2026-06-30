@@ -1,0 +1,107 @@
+// ============================================================
+// PRISMA SCHEMA — Wedding App
+// Base de datos: MySQL (Hostinger srv495.hstgr.io)
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ────────────────────────────────────────────────────────────
+// TABLE: guests
+// ────────────────────────────────────────────────────────────
+model Guest {
+  id            String         @id @default(uuid()) @db.VarChar(36)
+  createdAt     DateTime       @default(now()) @map("created_at")
+  name          String         @db.VarChar(255)
+  code          String         @unique @db.VarChar(50)
+  maxCompanions Int            @default(1) @map("max_companions")
+  email         String?        @db.VarChar(255)
+  phone         String?        @db.VarChar(50)
+  notes         String?        @db.Text
+  isActive      Boolean        @default(true) @map("is_active")
+
+  rsvpResponses RsvpResponse[]
+  rsvpAttendees RsvpAttendee[]
+
+  @@index([code])
+  @@map("guests")
+}
+
+// ────────────────────────────────────────────────────────────
+// TABLE: rsvp_responses  (una fila por invitado)
+// ────────────────────────────────────────────────────────────
+model RsvpResponse {
+  id        String         @id @default(uuid()) @db.VarChar(36)
+  createdAt DateTime       @default(now()) @map("created_at")
+  updatedAt DateTime       @default(now()) @updatedAt @map("updated_at")
+  guestId   String?        @map("guest_id") @db.VarChar(36)
+  guestName String         @unique @map("guest_name") @db.VarChar(255)
+  attending Boolean
+  message   String?        @db.Text
+
+  guest     Guest?         @relation(fields: [guestId], references: [id], onDelete: SetNull)
+  attendees RsvpAttendee[]
+
+  @@index([guestId])
+  @@index([updatedAt(sort: Desc)])
+  @@map("rsvp_responses")
+}
+
+// ────────────────────────────────────────────────────────────
+// TABLE: rsvp_attendees  (una fila por asistente dentro del RSVP)
+// ────────────────────────────────────────────────────────────
+model RsvpAttendee {
+  id             String       @id @default(uuid()) @db.VarChar(36)
+  createdAt      DateTime     @default(now()) @map("created_at")
+  rsvpId         String       @map("rsvp_id") @db.VarChar(36)
+  guestId        String?      @map("guest_id") @db.VarChar(36)
+  name           String       @db.VarChar(255)
+  type           AttendeeType
+  age            Int?
+  menuPreference String       @default("standard") @map("menu_preference") @db.VarChar(50)
+  // allergies: array de strings guardado como JSON column en MySQL
+  allergies      Json?
+  allergiesOther String?      @map("allergies_other") @db.VarChar(255)
+
+  rsvp           RsvpResponse @relation(fields: [rsvpId], references: [id], onDelete: Cascade)
+  guest          Guest?       @relation(fields: [guestId], references: [id], onDelete: SetNull)
+
+  @@index([rsvpId])
+  @@index([guestId])
+  @@map("rsvp_attendees")
+}
+
+enum AttendeeType {
+  adult
+  child
+}
+
+// ────────────────────────────────────────────────────────────
+// TABLE: uploads  (metadatos de Cloudinary — sin Storage de Supabase)
+// ────────────────────────────────────────────────────────────
+model Upload {
+  id          String     @id @default(uuid()) @db.VarChar(36)
+  createdAt   DateTime   @default(now()) @map("created_at")
+  fileUrl     String     @map("file_url") @db.Text
+  fileType    UploadType @map("file_type")
+  fileName    String?    @map("file_name") @db.VarChar(255)
+  storagePath String     @map("storage_path") @db.VarChar(500)
+  thumbUrl    String?    @map("thumb_url") @db.Text
+  userName    String?    @map("user_name") @db.VarChar(255)
+  guestName   String?    @map("guest_name") @db.VarChar(255)
+  message     String?    @db.Text
+
+  @@index([createdAt(sort: Desc)])
+  @@map("uploads")
+}
+
+enum UploadType {
+  image
+  video
+}

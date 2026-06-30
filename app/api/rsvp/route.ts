@@ -1,17 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
-
-// ── Demo mode: active when Supabase is not configured ─────────
-function isDemoMode() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''
-  return (
-    !url ||
-    !key ||
-    url.includes('your-project') ||
-    key.includes('your-anon-key')
-  )
-}
+import { prisma } from '@/lib/prisma'
 
 export interface AttendeePayload {
   name: string
@@ -39,97 +27,57 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // ── DEMO MODE — Supabase not configured ───────────────────
-    if (isDemoMode()) {
-      console.log('🟡 DEMO MODE — RSVP no guardado en BD (Supabase no configurado)')
-      console.log('   Nombre:', guestName, '| Asiste:', attending, '| Asistentes:', attendees.length)
-      // Simulate a small delay for realism
-      await new Promise(r => setTimeout(r, 600))
-      return NextResponse.json(
-        { success: true, demo: true, rsvpId: 'demo-' + Date.now(), attendeesCount: attendees.length },
-        { status: 201 }
-      )
-    }
-
     const safeAttendees: AttendeePayload[] = attending
       ? (attendees as AttendeePayload[]).slice(0, 20)
       : []
 
-    const now = new Date().toISOString()
-
-    // ── Check if this guest already has a response ─────────────
-    const { data: existing } = await supabase
-      .from('rsvp_responses')
-      .select('id')
-      .eq('guest_name', guestName.trim())
-      .maybeSingle()
+    // ── Upsert: actualizar si existe, insertar si no ──────────
+    const existing = await prisma.rsvpResponse.findFirst({
+      where:  { guestName: guestName.trim() },
+      select: { id: true },
+    })
 
     let rsvpId: string
 
     if (existing?.id) {
-      // UPDATE existing response
-      const { data: updated, error: updateError } = await supabase
-        .from('rsvp_responses')
-        .update({ attending: Boolean(attending), message, updated_at: now })
-        .eq('id', existing.id)
-        .select('id')
-        .single()
-
-      if (updateError || !updated) {
-        console.error('RSVP update error:', updateError)
-        return NextResponse.json({ error: 'Error al actualizar tu respuesta.' }, { status: 500 })
-      }
-      rsvpId = updated.id
+      // UPDATE
+      await prisma.rsvpResponse.update({
+        where: { id: existing.id },
+        data:  {
+          attending: Boolean(attending),
+          message,
+          updatedAt: new Date(),
+        },
+      })
+      rsvpId = existing.id
     } else {
-      // INSERT new response — omit guest_id entirely so nullable constraint applies
-      const insertPayload: Record<string, unknown> = {
-        guest_name: guestName.trim(),
-        attending: Boolean(attending),
-        message,
-        updated_at: now,
-      }
-
-      const { data: inserted, error: insertError } = await supabase
-        .from('rsvp_responses')
-        .insert(insertPayload)
-        .select('id')
-        .single()
-
-      if (insertError || !inserted) {
-        console.error('RSVP insert error:', insertError)
-        return NextResponse.json({ error: 'Error al guardar tu respuesta. Comprueba la configuración de Supabase.' }, { status: 500 })
-      }
+      // INSERT
+      const inserted = await prisma.rsvpResponse.create({
+        data: {
+          guestName: guestName.trim(),
+          attending: Boolean(attending),
+          message,
+        },
+        select: { id: true },
+      })
       rsvpId = inserted.id
     }
 
-    // ── Delete existing attendees and re-insert ────────────────
-    await supabase.from('rsvp_attendees').delete().eq('rsvp_id', rsvpId)
+    // ── Borrar asistentes previos y reinsertar ────────────────
+    await prisma.rsvpAttendee.deleteMany({ where: { rsvpId } })
 
     if (safeAttendees.length > 0) {
-      const attendeeRows = safeAttendees.map((a) => ({
-        rsvp_id: rsvpId,
-        name: a.name?.trim() || 'Sin nombre',
-        type: a.type,
-        age: a.type === 'child' ? (a.age ?? null) : null,
-        menu_preference: a.menuPreference || 'standard',
-        allergies: a.allergies ?? [],
-        allergies_other: a.allergiesOther || null,
-      }))
-
-      const { error: attendeesError } = await supabase
-        .from('rsvp_attendees')
-        .insert(attendeeRows)
-
-      if (attendeesError) {
-        console.error('Attendees insert error:', attendeesError)
-        // Don't fail the whole request — RSVP is saved, attendees might fail if table doesn't exist yet
-        return NextResponse.json({
-          success: true,
+      await prisma.rsvpAttendee.createMany({
+        data: safeAttendees.map((a) => ({
           rsvpId,
-          warning: 'Respuesta guardada, pero hubo un problema con los asistentes: ' + attendeesError.message,
-          attendeesCount: 0,
-        }, { status: 201 })
-      }
+          name:           a.name?.trim() || 'Sin nombre',
+          type:           a.type === 'child' ? ('child' as const) : ('adult' as const),
+          age:            a.type === 'child' ? (a.age ?? null) : null,
+          menuPreference: a.menuPreference || 'standard',
+          allergies:      a.allergies ?? [],
+          allergiesOther: a.allergiesOther || null,
+        })),
+      })
     }
 
     return NextResponse.json(

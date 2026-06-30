@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { supabase } from '@/lib/supabase'
 import { getThumbUrl, getFullUrl, type MediaRecord } from '@/lib/cloudinary'
 import { X, Play, RefreshCw, User } from 'lucide-react'
 
@@ -14,12 +13,15 @@ export default function UploadGallery() {
 
   const fetchUploads = useCallback(async (showRefresh = false) => {
     if (showRefresh) setRefreshing(true)
-    const { data } = await supabase
-      .from('uploads')
-      .select('id,file_url,storage_path,file_type,file_name,user_name,created_at,thumb_url')
-      .order('created_at', { ascending: false })
-      .limit(100)   // Máx 100 items — reduce ancho de banda de Supabase y Cloudinary
-    if (data) setUploads(data as MediaRecord[])
+    try {
+      const res = await fetch('/api/uploads')
+      if (res.ok) {
+        const data = await res.json()
+        setUploads(data as MediaRecord[])
+      }
+    } catch (err) {
+      console.error('[UploadGallery] fetchUploads error:', err)
+    }
     setLoading(false)
     setRefreshing(false)
   }, [])
@@ -27,7 +29,7 @@ export default function UploadGallery() {
   useEffect(() => {
     fetchUploads()
     // Refresco cada 5 minutos — en el día de la boda hay actividad real,
-    // pero 30 s era excesivo y generaba fetches innecesarios a Supabase.
+    // pero 30 s era excesivo y generaba fetches innecesarios.
     const interval = setInterval(() => fetchUploads(), 5 * 60_000)
     return () => clearInterval(interval)
   }, [fetchUploads])
