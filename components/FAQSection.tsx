@@ -45,11 +45,6 @@ const FAQ_ITEMS: FAQItem[] = [
     answer: '¡Por supuesto! Los niños son bienvenidos en nuestra boda. Habrá menú infantil disponible, así que no olvidéis indicarlo en el formulario de confirmación de asistencia.',
   },
   {
-    emoji: '📱',
-    question: '¿Puedo hacer fotos durante la ceremonia?',
-    answer: 'Preferimos que durante la ceremonia viváis el momento con nosotros sin pantallas. Tenemos un fotógrafo profesional que capturará todos los momentos. En el banquete podréis hacer todas las fotos y vídeos que queráis.',
-  },
-  {
     emoji: '🍽️',
     question: '¿Hay opciones para personas con alergias o dietas especiales?',
     answer: 'Sí, absolutamente. Al confirmar tu asistencia podrás indicar tu preferencia de menú (vegetariano, vegano, sin gluten…) y cualquier alergia o intolerancia. El restaurante lo tendrá todo en cuenta.',
@@ -58,16 +53,6 @@ const FAQ_ITEMS: FAQItem[] = [
     emoji: '📅',
     question: '¿Cuándo es el plazo para confirmar asistencia?',
     answer: 'Te pedimos que confirmes tu asistencia antes del 20 de septiembre de 2026. Esto nos ayuda a organizar el restaurante, la disposición de las mesas y todos los detalles con tiempo suficiente. ¡No te olvides!',
-  },
-  {
-    emoji: '🎁',
-    question: '¿Qué podemos regalaros?',
-    answer: 'Vuestro regalo más especial es vuestra presencia. Si queréis hacernos un obsequio, podéis contribuir a nuestra luna de miel mediante transferencia bancaria. Encontraréis los datos en la sección "Lista de bodas" de esta misma web.',
-  },
-  {
-    emoji: '🌧️',
-    question: '¿Qué pasa si llueve?',
-    answer: 'En el restaurante Molina Real dispone de espacios cubiertos que garantizan la celebración en perfectas condiciones independientemente del tiempo. Tenemos un plan B completamente preparado por si el tiempo no acompaña, así que no hay de qué preocuparse.',
   },
 ]
 

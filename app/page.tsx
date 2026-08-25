@@ -342,9 +342,6 @@ export default function Home() {
               </div>
             </SectionWrapper>
 
-            {/* ─── REGALO ─── */}
-            <GiftSection />
-
             {/* ─── RSVP ─── */}
             <SectionWrapper
               id="rsvp"
@@ -375,6 +372,9 @@ export default function Home() {
                 <RSVPForm />
               </div>
             </SectionWrapper>
+
+            {/* ─── REGALO ─── */}
+            <GiftSection />
 
             {/* ─── GALERÍA DE INVITADOS ─── */}
             <SectionWrapper

@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Gift, Eye, EyeOff, Copy, Check } from 'lucide-react'
 import SectionWrapper from './SectionWrapper'
 
-const BANK_ACCOUNT = process.env.NEXT_PUBLIC_BANK_ACCOUNT || 'ES12 1234 5678 9012 3456 7890'
+const BANK_ACCOUNT = process.env.NEXT_PUBLIC_BANK_ACCOUNT || 'ES25 3058 0248 7127 2003 7652'
 const BANK_NAME    = process.env.NEXT_PUBLIC_BANK_NAME    || 'CajaMar'
 const BANK_HOLDER  = process.env.NEXT_PUBLIC_BANK_HOLDER  || 'Pedro Ángel & Mari '
 
@@ -51,8 +51,7 @@ export default function GiftSection() {
             fontWeight: 300, fontSize: '0.9rem', lineHeight: 1.75 }}
         >
           Vuestra presencia es el regalo más especial que podéis hacernos.
-          Pero si aun así queréis contribuir a nuestra nueva vida juntos,
-          podéis hacer una aportación a nuestra cuenta.
+          Pero si aun así queréis contribuir a nuestra nueva vida juntos...
         </p>
 
         {/* Card */}
