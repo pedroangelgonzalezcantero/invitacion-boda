@@ -20,7 +20,7 @@ interface Attendee {
 
 // ─── Constants ────────────────────────────────────────────────
 const MENU_OPTIONS = [
-  { value: 'standard',    label: '🍽️  Menú adulto con carne' },
+  { value: 'standard',    label: '🥩  Menú adulto con carne' },
   { value: 'fish',        label: '🐟  Menú adulto con pescado' },
   { value: 'vegetarian',  label: '🥗  Vegetariano' },
   { value: 'vegan',       label: '🌱  Vegano' },

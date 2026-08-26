@@ -19,12 +19,15 @@ const BRIDE = process.env.NEXT_PUBLIC_BRIDE_NAME || 'Pedro Ángel'
 const GROOM = process.env.NEXT_PUBLIC_GROOM_NAME || 'Mari'
 const WEDDING_DATE = process.env.NEXT_PUBLIC_WEDDING_DATE || '2026-11-28T12:30:00'
 
-const weddingDateFormatted = new Date(WEDDING_DATE).toLocaleDateString('es-ES', {
-  weekday: 'long',
-  year: 'numeric',
-  month: 'long',
-  day: 'numeric',
-})
+const weddingDateFormatted = (() => {
+  const raw = new Date(WEDDING_DATE).toLocaleDateString('es-ES', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
+  return raw.charAt(0).toUpperCase() + raw.slice(1)
+})()
 
 const weddingTime = new Date(WEDDING_DATE).toLocaleTimeString('es-ES', {
   hour: '2-digit',
