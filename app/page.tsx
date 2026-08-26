@@ -114,7 +114,7 @@ export default function Home() {
                   <div style={{ height: 1, width: 40, background: 'var(--gold-light)' }} />
                   <Calendar size={14} color="var(--gold)" />
                   <span
-                    className="text-sm capitalize"
+                    className="text-sm"
                     style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 300, letterSpacing: '0.05em' }}
                   >
                     {weddingDateFormatted}

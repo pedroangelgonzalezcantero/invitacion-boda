@@ -5,9 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Gift, Eye, EyeOff, Copy, Check } from 'lucide-react'
 import SectionWrapper from './SectionWrapper'
 
-const BANK_ACCOUNT = process.env.NEXT_PUBLIC_BANK_ACCOUNT || 'ES25 3058 0248 7127 2003 7652'
-const BANK_NAME    = process.env.NEXT_PUBLIC_BANK_NAME    || 'CajaMar'
-const BANK_HOLDER  = process.env.NEXT_PUBLIC_BANK_HOLDER  || 'Pedro Ángel & Mari '
+const BANK_ACCOUNT = 'ES25 3058 0248 7127 2003 7652'
+const BANK_NAME    = 'CajaMar'
+const BANK_HOLDER  = 'Pedro Ángel & Mari'
 
 export default function GiftSection() {
   const [revealed, setRevealed] = useState(false)
