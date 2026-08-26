@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import dynamic from 'next/dynamic'
 import EnvelopeAnimation from '@/components/EnvelopeAnimation'
@@ -33,6 +33,15 @@ const weddingTime = new Date(WEDDING_DATE).toLocaleTimeString('es-ES', {
 
 export default function Home() {
   const [envelopeOpened, setEnvelopeOpened] = useState(false)
+
+  // Registrar visita al cargar la página
+  useEffect(() => {
+    fetch('/api/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path: '/' }),
+    }).catch(() => {})
+  }, [])
 
   return (
     <>

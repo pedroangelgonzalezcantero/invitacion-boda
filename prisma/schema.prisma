@@ -105,3 +105,16 @@ enum UploadType {
   image
   video
 }
+
+// ────────────────────────────────────────────────────────────
+// TABLE: page_views  (visitas a la web)
+// ────────────────────────────────────────────────────────────
+model PageView {
+  id        String   @id @default(uuid()) @db.VarChar(36)
+  createdAt DateTime @default(now()) @map("created_at")
+  path      String   @default("/") @db.VarChar(255)
+
+  @@index([createdAt(sort: Desc)])
+  @@map("page_views")
+}
+

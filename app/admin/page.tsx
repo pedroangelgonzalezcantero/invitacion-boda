@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Users, CheckCircle, XCircle, ChefHat, AlertTriangle, MessageCircle, RefreshCw, ChevronDown, ChevronUp, Baby, User, Download, QrCode, Images } from 'lucide-react'
+import { Users, CheckCircle, XCircle, ChefHat, AlertTriangle, MessageCircle, RefreshCw, ChevronDown, ChevronUp, Baby, User, Download, QrCode, Images, Eye } from 'lucide-react'
 import * as XLSX from 'xlsx'
 import { QRCodeSVG } from 'qrcode.react'
 
@@ -38,13 +38,14 @@ interface Summary {
   allergyCount: Record<string, number>
 }
 
-// ── Constants ──────────────────────────────────────────────────
+// ── Constants ──────────────────────────────────────────────
 const MENU_LABELS: Record<string, string> = {
-  standard:    '🍽️ Estándar',
-  vegetarian:  '🥗 Vegetariano',
-  vegan:       '🌱 Vegano',
+  standard:      '🥩 Menú adulto con carne',
+  fish:          '🐟 Menú adulto con pescado',
+  vegetarian:    '🥗 Vegetariano',
+  vegan:         '🌱 Vegano',
   'gluten-free': '🌾 Sin gluten',
-  children:    '🧒 Infantil',
+  children:      '🧒 Infantil',
 }
 
 const ALLERGY_LABELS: Record<string, string> = {
@@ -82,6 +83,7 @@ export default function AdminPage() {
   const [expandedId, setExpandedId]     = useState<string | null>(null)
   const [search, setSearch]             = useState('')
   const [origin, setOrigin]             = useState('')
+  const [visits, setVisits]             = useState<{ total: number; today: number } | null>(null)
 
   useEffect(() => { setOrigin(window.location.origin) }, [])
 
@@ -124,7 +126,10 @@ export default function AdminPage() {
     setLoading(true)
     setError('')
     try {
-      const res  = await fetch('/api/admin/guests', { headers: { 'x-admin-token': authToken } })
+      const [res, visitsRes] = await Promise.all([
+        fetch('/api/admin/guests', { headers: { 'x-admin-token': authToken } }),
+        fetch('/api/track', { headers: { 'x-admin-token': authToken } }),
+      ])
       const json = await res.json()
       if (!res.ok) {
         setError(json.error || 'Error desconocido')
@@ -133,6 +138,10 @@ export default function AdminPage() {
       }
       setSummary(json.summary)
       setRsvps(json.rsvps ?? [])
+      if (visitsRes.ok) {
+        const vJson = await visitsRes.json()
+        setVisits(vJson)
+      }
       if (json.demo) {
         setError('⚙️ Base de datos no configurada. Configura DATABASE_URL en Vercel → Settings → Environment Variables.')
       }
@@ -226,25 +235,52 @@ export default function AdminPage() {
 
         {/* ── STATS ── */}
         {summary && (
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-            {[
-              { icon: <Users size={20} />,       label: 'Respuestas',  value: summary.totalResponses, color: 'var(--charcoal)' },
-              { icon: <CheckCircle size={20} />,  label: 'Confirmados', value: summary.confirmed,      color: 'var(--gold)' },
-              { icon: <XCircle size={20} />,      label: 'Declinados',  value: summary.declined,       color: 'var(--rose-dark)' },
-              { icon: <User size={20} />,         label: 'Adultos',     value: summary.totalAdults,    color: '#5c9e6a' },
-              { icon: <Baby size={20} />,         label: 'Niños',       value: summary.totalChildren,  color: '#7b8fa1' },
-            ].map(s => (
-              <motion.div key={s.label} className="card-elegant p-4 flex flex-col gap-1"
-                initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-                <div className="flex items-center gap-2" style={{ color: s.color }}>
-                  {s.icon}
-                  <span style={{ fontSize: '1.8rem', fontWeight: 300 }}>{s.value}</span>
-                </div>
-                <p style={{ fontSize: '0.72rem', fontFamily: "'Montserrat', sans-serif", fontWeight: 300, color: 'var(--charcoal)', opacity: 0.55 }}>
-                  {s.label}
-                </p>
-              </motion.div>
-            ))}
+          <div className="flex flex-col gap-3">
+            {/* Fila 1: resumen de grupos */}
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { icon: <Users size={20} />,      label: 'Respuestas',           sublabel: 'grupos',   value: summary.totalResponses, color: 'var(--charcoal)' },
+                { icon: <CheckCircle size={20} />, label: 'Confirmados',          sublabel: 'grupos',   value: summary.confirmed,      color: 'var(--gold)' },
+                { icon: <XCircle size={20} />,     label: 'Declinados',           sublabel: 'grupos',   value: summary.declined,       color: 'var(--rose-dark)' },
+              ].map(s => (
+                <motion.div key={s.label} className="card-elegant p-4 flex flex-col gap-1"
+                  initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+                  <div className="flex items-center gap-2" style={{ color: s.color }}>
+                    {s.icon}
+                    <span style={{ fontSize: '1.8rem', fontWeight: 300 }}>{s.value}</span>
+                  </div>
+                  <p style={{ fontSize: '0.72rem', fontFamily: "'Montserrat', sans-serif", fontWeight: 300, color: 'var(--charcoal)', opacity: 0.55 }}>
+                    {s.label}
+                  </p>
+                  <p style={{ fontSize: '0.65rem', fontFamily: "'Montserrat', sans-serif", fontWeight: 300, color: 'var(--charcoal)', opacity: 0.35 }}>
+                    {s.sublabel}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
+            {/* Fila 2: personas y visitas */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {[
+                { icon: <Users size={20} />,   label: 'Total asistentes', sublabel: 'personas',  value: summary.totalAttending, color: '#4a7c59' },
+                { icon: <User size={20} />,    label: 'Adultos',          sublabel: 'personas',  value: summary.totalAdults,    color: '#5c9e6a' },
+                { icon: <Baby size={20} />,    label: 'Niños',            sublabel: 'personas',  value: summary.totalChildren,  color: '#7b8fa1' },
+                { icon: <Eye size={20} />,     label: 'Visitas web',      sublabel: visits ? `hoy: ${visits.today}` : '…', value: visits?.total ?? '…', color: '#9b7cc8' },
+              ].map(s => (
+                <motion.div key={s.label} className="card-elegant p-4 flex flex-col gap-1"
+                  initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+                  <div className="flex items-center gap-2" style={{ color: s.color }}>
+                    {s.icon}
+                    <span style={{ fontSize: '1.8rem', fontWeight: 300 }}>{s.value}</span>
+                  </div>
+                  <p style={{ fontSize: '0.72rem', fontFamily: "'Montserrat', sans-serif", fontWeight: 300, color: 'var(--charcoal)', opacity: 0.55 }}>
+                    {s.label}
+                  </p>
+                  <p style={{ fontSize: '0.65rem', fontFamily: "'Montserrat', sans-serif", fontWeight: 300, color: 'var(--charcoal)', opacity: 0.35 }}>
+                    {s.sublabel}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
           </div>
         )}
 

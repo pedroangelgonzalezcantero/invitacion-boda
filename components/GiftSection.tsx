@@ -51,7 +51,7 @@ export default function GiftSection() {
             fontWeight: 300, fontSize: '0.9rem', lineHeight: 1.75 }}
         >
           Vuestra presencia es el regalo más especial que podéis hacernos.
-          Pero si aun así queréis contribuir a nuestra nueva vida juntos...
+          Pero si aún así queréis contribuir a nuestra nueva vida juntos...
         </p>
 
         {/* Card */}
