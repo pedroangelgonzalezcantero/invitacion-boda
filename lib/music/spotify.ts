@@ -34,7 +34,8 @@ async function getSpotifyAccessToken() {
   })
 
   if (!response.ok) {
-    throw new Error('SPOTIFY_TOKEN_ERROR')
+    const details = await response.text().catch(() => '')
+    throw new Error(`SPOTIFY_TOKEN_ERROR:${response.status}:${details.slice(0, 300)}`)
   }
 
   const json = await response.json() as {
@@ -66,7 +67,8 @@ export async function searchSpotifyTracks(query: string, limit = 8): Promise<Spo
   )
 
   if (!response.ok) {
-    throw new Error('SPOTIFY_SEARCH_ERROR')
+    const details = await response.text().catch(() => '')
+    throw new Error(`SPOTIFY_SEARCH_ERROR:${response.status}:${details.slice(0, 300)}`)
   }
 
   const json = await response.json() as {
