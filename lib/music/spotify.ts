@@ -60,6 +60,18 @@ async function getSpotifyAccessToken() {
     }
 
     console.log('[Spotify] Successfully obtained access token')
+
+    const json = await response.json() as {
+      access_token: string
+      expires_in: number
+    }
+
+    globalForSpotify.__spotifyTokenCache = {
+      accessToken: json.access_token,
+      expiresAt: Date.now() + json.expires_in * 1000,
+    }
+
+    return json.access_token
   } catch (error) {
     if (error instanceof Error && error.message.includes('SPOTIFY_TOKEN_ERROR')) {
       throw error
@@ -67,26 +79,6 @@ async function getSpotifyAccessToken() {
     console.error('[Spotify] Network error during auth:', error)
     throw new Error(`SPOTIFY_TOKEN_ERROR:NETWORK:${error instanceof Error ? error.message : 'Unknown error'}`)
   }
-
-  } catch (error) {
-    if (error instanceof Error && error.message.includes('SPOTIFY_TOKEN_ERROR')) {
-      throw error
-    }
-    console.error('[Spotify] Network error during auth:', error)
-    throw new Error(`SPOTIFY_TOKEN_ERROR:NETWORK:${error instanceof Error ? error.message : 'Unknown error'}`)
-  }
-
-  const json = await response.json() as {
-    access_token: string
-    expires_in: number
-  }
-
-  globalForSpotify.__spotifyTokenCache = {
-    accessToken: json.access_token,
-    expiresAt: Date.now() + json.expires_in * 1000,
-  }
-
-  return json.access_token
 }
 
 export async function searchSpotifyTracks(query: string, limit = 8): Promise<SpotifyTrackResult[]> {
