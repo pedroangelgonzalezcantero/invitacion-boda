@@ -1,5 +1,19 @@
 import { SpotifyTrackResult } from '@/lib/music/types'
 
+function getNormalizedEnvValue(value: string | undefined) {
+  if (!value) return ''
+
+  const trimmed = value.trim()
+  if (
+    (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+    (trimmed.startsWith("'") && trimmed.endsWith("'"))
+  ) {
+    return trimmed.slice(1, -1).trim()
+  }
+
+  return trimmed
+}
+
 type SpotifyTokenCache = {
   accessToken: string
   expiresAt: number
@@ -10,8 +24,8 @@ const globalForSpotify = globalThis as typeof globalThis & {
 }
 
 async function getSpotifyAccessToken() {
-  const clientId = process.env.SPOTIFY_CLIENT_ID
-  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET
+  const clientId = getNormalizedEnvValue(process.env.SPOTIFY_CLIENT_ID)
+  const clientSecret = getNormalizedEnvValue(process.env.SPOTIFY_CLIENT_SECRET)
 
   if (!clientId || !clientSecret) {
     throw new Error('SPOTIFY_NOT_CONFIGURED')
