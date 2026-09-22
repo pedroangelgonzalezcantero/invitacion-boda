@@ -113,6 +113,33 @@ export async function searchSpotifyTracks(query: string, limit = 8): Promise<Spo
     }
 
     console.log('[Spotify] Search successful')
+
+    const json = await response.json() as {
+      tracks?: {
+        items?: Array<{
+          id: string
+          name: string
+          external_urls?: { spotify?: string }
+          album?: {
+            name?: string
+            images?: Array<{ url: string }>
+          }
+          artists?: Array<{ name: string }>
+        }>
+      }
+    }
+
+    const results = (json.tracks?.items || []).map((track) => ({
+      spotifyTrackId: track.id,
+      songName: track.name,
+      artistName: (track.artists || []).map((artist) => artist.name).join(', '),
+      albumName: track.album?.name || null,
+      albumImageUrl: track.album?.images?.[0]?.url || null,
+      spotifyUrl: track.external_urls?.spotify || null,
+    }))
+
+    console.log(`[Spotify] Found ${results.length} results`)
+    return results
   } catch (error) {
     if (error instanceof Error && error.message.includes('SPOTIFY_SEARCH_ERROR')) {
       throw error
@@ -120,32 +147,5 @@ export async function searchSpotifyTracks(query: string, limit = 8): Promise<Spo
     console.error('[Spotify] Network error during search:', error)
     throw new Error(`SPOTIFY_SEARCH_ERROR:NETWORK:${error instanceof Error ? error.message : 'Unknown error'}`)
   }
-
-  const json = await response.json() as {
-    tracks?: {
-      items?: Array<{
-        id: string
-        name: string
-        external_urls?: { spotify?: string }
-        album?: {
-          name?: string
-          images?: Array<{ url: string }>
-        }
-        artists?: Array<{ name: string }>
-      }>
-    }
-  }
-
-  const results = (json.tracks?.items || []).map((track) => ({
-    spotifyTrackId: track.id,
-    songName: track.name,
-    artistName: (track.artists || []).map((artist) => artist.name).join(', '),
-    albumName: track.album?.name || null,
-    albumImageUrl: track.album?.images?.[0]?.url || null,
-    spotifyUrl: track.external_urls?.spotify || null,
-  }))
-
-  console.log(`[Spotify] Found ${results.length} results`)
-  return results
 }
 
