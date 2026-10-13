@@ -69,10 +69,6 @@ export default function MusicGuestPage() {
     return query.trim().length >= 2 && !searching && !searchError && results.length === 0
   }, [query, searching, searchError, results.length])
 
-  const idleStateVisible = useMemo(() => {
-    return query.trim().length < 2 && !status && !searchError
-  }, [query, status, searchError])
-
   async function handlePreview(track = selectedTrack) {
     if (!track) return
 
@@ -243,9 +239,6 @@ export default function MusicGuestPage() {
                 <p className="text-xs uppercase tracking-[0.35em]" style={{ color: 'rgba(44,44,44,0.52)', fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}>
                   Resultados
                 </p>
-                <p className="mt-1" style={{ color: 'rgba(44,44,44,0.42)', fontFamily: "'Montserrat', sans-serif", fontSize: '0.74rem' }}>
-                  Toca el check dorado para pedir una canción al momento.
-                </p>
               </div>
               <MusicSearchResults
                 items={results}
@@ -265,55 +258,6 @@ export default function MusicGuestPage() {
               </p>
             </div>
           )}
-
-          {idleStateVisible && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="card-elegant p-5 md:p-6"
-              style={{ background: 'rgba(255,255,255,0.86)', borderColor: 'rgba(201,169,110,0.16)', boxShadow: '0 18px 40px rgba(69,52,38,0.08)' }}
-            >
-              <div className="flex flex-col gap-4">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.35em]" style={{ color: 'var(--gold)', fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}>
-                    Esta noche promete
-                  </p>
-                  <h2 className="mt-2" style={{ color: 'var(--charcoal)', fontSize: '1.8rem', fontWeight: 300 }}>
-                    Elige tu himno y súbelo a la pista
-                  </h2>
-                  <p className="mt-2" style={{ color: 'rgba(44,44,44,0.58)', fontFamily: "'Montserrat', sans-serif", fontSize: '0.84rem', lineHeight: 1.75 }}>
-                    Busca artista o canción, toca el check dorado y deja tu voto para que el DJ sepa qué temazos van a romper la boda.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  {[
-                    { emoji: '🔎', title: 'Busca', text: 'Tu canción favorita o ese guilty pleasure que no puede faltar.' },
-                    { emoji: '✅', title: 'Marca', text: 'Toca el check dorado del resultado que quieras pedir.' },
-                    { emoji: '🎉', title: 'Celebra', text: 'El DJ lo recibirá al momento para prender la fiesta.' },
-                  ].map((item) => (
-                    <div
-                      key={item.title}
-                      className="rounded-[22px] p-4"
-                      style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(247,240,229,0.92) 100%)', border: '1px solid rgba(201,169,110,0.14)' }}
-                    >
-                      <div style={{ fontSize: '1.3rem' }}>{item.emoji}</div>
-                      <p className="mt-3" style={{ color: 'var(--charcoal)', fontSize: '1.02rem' }}>{item.title}</p>
-                      <p className="mt-1" style={{ color: 'rgba(44,44,44,0.56)', fontFamily: "'Montserrat', sans-serif", fontSize: '0.76rem', lineHeight: 1.7 }}>
-                        {item.text}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-          )}
-
-          <div className="text-center pt-2 pb-6">
-            <p style={{ color: 'rgba(44,44,44,0.3)', fontFamily: "'Montserrat', sans-serif", fontSize: '0.72rem', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-              Busca · Marca · Confirma · Baila
-            </p>
-          </div>
         </div>
       </main>
 
@@ -329,8 +273,6 @@ export default function MusicGuestPage() {
     </div>
   )
 }
-
-
 
 
 

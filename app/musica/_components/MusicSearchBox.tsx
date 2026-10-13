@@ -8,9 +8,9 @@ interface MusicSearchBoxProps {
 
 export default function MusicSearchBox({ query, onChange, searching }: MusicSearchBoxProps) {
   return (
-    <div className="card-elegant p-4 md:p-5" style={{ background: 'rgba(255,250,245,0.96)', borderColor: 'rgba(201,169,110,0.18)', boxShadow: '0 22px 60px rgba(69,52,38,0.14)' }}>
+    <div className="card-elegant p-4 md:p-5" style={{ background: 'rgba(212,165,165,0.2)', borderColor: 'rgba(176,120,120,0.38)', boxShadow: '0 22px 60px rgba(69,52,38,0.14)' }}>
       <label htmlFor="music-search" className="block text-xs uppercase tracking-[0.35em] mb-3"
-        style={{ color: 'rgba(44,44,44,0.5)', fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}>
+        style={{ color: 'var(--rose-dark)', fontFamily: "'Montserrat', sans-serif", fontWeight: 400 }}>
         Busca en Spotify
       </label>
       <div className="relative">
@@ -21,8 +21,8 @@ export default function MusicSearchBox({ query, onChange, searching }: MusicSear
           placeholder="Ej. Quevedo Columbia, Dua Lipa, Houdini..."
           className="w-full rounded-2xl border px-4 py-4"
           style={{
-            background: '#fffefb',
-            borderColor: 'rgba(201,169,110,0.22)',
+            background: 'rgba(255,255,255,0.9)',
+            borderColor: 'rgba(176,120,120,0.38)',
             color: 'var(--charcoal)',
             fontFamily: "'Montserrat', sans-serif",
             fontSize: '0.95rem',
@@ -35,11 +35,7 @@ export default function MusicSearchBox({ query, onChange, searching }: MusicSear
           {searching ? 'Buscando…' : 'Spotify'}
         </div>
       </div>
-      <p className="mt-3" style={{ color: 'rgba(44,44,44,0.46)', fontFamily: "'Montserrat', sans-serif", fontSize: '0.78rem', lineHeight: 1.65 }}>
-        Escribe artista, canción o ambos. Elige el resultado correcto y envíaselo al DJ en segundos.
-      </p>
     </div>
   )
 }
-
 
