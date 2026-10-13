@@ -2,7 +2,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Check } from 'lucide-react'
+import { Check, LoaderCircle } from 'lucide-react'
 import { SpotifyTrackResult } from '@/lib/music/types'
 
 interface MusicTrackCardProps {
@@ -17,7 +17,7 @@ export default function MusicTrackCard({ track, onSelect, onQuickConfirm, isSele
   return (
     <motion.div
       onClick={() => onSelect(track)}
-      className="w-full text-left rounded-3xl p-3 md:p-4 border"
+      className="w-full cursor-pointer rounded-[22px] border p-3 text-left transition-colors sm:rounded-[26px] sm:p-4"
       role="button"
       tabIndex={0}
       onKeyDown={(event) => {
@@ -27,30 +27,30 @@ export default function MusicTrackCard({ track, onSelect, onQuickConfirm, isSele
         }
       }}
       style={{
-        background: isSelected ? 'linear-gradient(135deg, rgba(232,213,176,0.58) 0%, rgba(255,255,255,0.98) 100%)' : 'rgba(255,255,255,0.88)',
-        borderColor: isSelected ? 'rgba(201,169,110,0.46)' : 'rgba(201,169,110,0.14)',
-        boxShadow: isSelected ? '0 18px 42px rgba(201,169,110,0.2)' : '0 10px 26px rgba(69,52,38,0.06)',
+        background: isSelected ? 'linear-gradient(135deg, #fbf3ff 0%, #fff 100%)' : '#fff',
+        borderColor: isSelected ? '#c69bd6' : '#e9e3f0',
+        boxShadow: isSelected ? '0 14px 36px rgba(147,91,171,0.14)' : '0 8px 24px rgba(49,36,68,0.055)',
       }}
       whileHover={{ y: -2, scale: 1.01 }}
       whileTap={{ scale: 0.99 }}
     >
       <div className="flex items-center gap-3">
-        <div className="overflow-hidden rounded-2xl flex-shrink-0" style={{ width: 66, height: 66, background: 'rgba(255,255,255,0.08)' }}>
+        <div className="flex-shrink-0 overflow-hidden rounded-2xl" style={{ width: 66, height: 66, background: '#eee9f4' }}>
           {track.albumImageUrl ? (
             <img src={track.albumImageUrl} alt={track.songName} className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center" style={{ color: 'white', opacity: 0.7 }}>♪</div>
+            <div className="flex h-full w-full items-center justify-center" style={{ color: '#8765a7', fontSize: '1.7rem' }}>♪</div>
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="truncate" style={{ color: 'var(--charcoal)', fontSize: '1.05rem', fontWeight: 500 }}>
+          <p className="truncate" style={{ color: '#30263b', fontSize: '1.02rem', fontWeight: 600 }}>
             {track.songName}
           </p>
-          <p className="truncate mt-0.5" style={{ color: 'rgba(44,44,44,0.72)', fontFamily: "'Montserrat', sans-serif", fontSize: '0.82rem' }}>
+          <p className="mt-0.5 truncate" style={{ color: '#665c70', fontFamily: "'Montserrat', sans-serif", fontSize: '0.8rem' }}>
             {track.artistName}
           </p>
           {track.albumName && (
-            <p className="truncate mt-1" style={{ color: 'rgba(44,44,44,0.42)', fontFamily: "'Montserrat', sans-serif", fontSize: '0.74rem' }}>
+            <p className="mt-1 truncate" style={{ color: '#928a99', fontFamily: "'Montserrat', sans-serif", fontSize: '0.72rem' }}>
               {track.albumName}
             </p>
           )}
@@ -67,18 +67,17 @@ export default function MusicTrackCard({ track, onSelect, onQuickConfirm, isSele
           style={{
             width: 40,
             height: 40,
-            background: isBusy ? 'rgba(201,169,110,0.18)' : 'linear-gradient(135deg, var(--gold) 0%, #b8935c 100%)',
+            background: isBusy ? '#eee9f4' : 'linear-gradient(135deg, #df69b7 0%, #8758de 100%)',
             color: 'white',
-            boxShadow: '0 8px 20px rgba(201,169,110,0.24)',
+            boxShadow: isBusy ? 'none' : '0 8px 18px rgba(155,83,185,0.26)',
           }}
         >
-          <Check size={18} />
+          {isBusy ? <LoaderCircle className="animate-spin" size={18} color="#76518c" /> : <Check size={18} />}
         </button>
       </div>
     </motion.div>
   )
 }
-
 
 
 

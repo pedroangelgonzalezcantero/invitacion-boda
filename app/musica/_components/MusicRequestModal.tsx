@@ -32,15 +32,15 @@ export default function MusicRequestModal({
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 24 }}
-            className="w-full max-w-lg rounded-[28px] p-5 border"
+            className="max-h-[90dvh] w-full max-w-lg overflow-y-auto rounded-[28px] border p-5"
             style={{
-              background: 'linear-gradient(180deg, rgba(58,49,41,0.98) 0%, rgba(42,34,29,0.98) 100%)',
-              borderColor: 'rgba(232,213,176,0.18)',
-              boxShadow: '0 24px 80px rgba(0,0,0,0.35)',
+              background: 'linear-gradient(145deg, #21182f 0%, #352143 58%, #482744 100%)',
+              borderColor: 'rgba(247,205,236,0.18)',
+              boxShadow: '0 24px 80px rgba(18,12,28,0.48)',
             }}
           >
             <div className="flex items-start gap-4">
-              <div className="overflow-hidden rounded-2xl flex-shrink-0" style={{ width: 72, height: 72, background: 'rgba(255,255,255,0.08)' }}>
+              <div className="flex-shrink-0 overflow-hidden rounded-2xl" style={{ width: 72, height: 72, background: 'rgba(255,255,255,0.08)' }}>
                 {track.albumImageUrl ? (
                   <img src={track.albumImageUrl} alt={track.songName} className="w-full h-full object-cover" />
                 ) : (
@@ -56,7 +56,7 @@ export default function MusicRequestModal({
               </div>
             </div>
 
-            <div className="mt-5 rounded-3xl p-4" style={{ background: 'rgba(255,248,240,0.08)', border: '1px solid rgba(232,213,176,0.14)' }}>
+            <div className="mt-5 rounded-3xl border p-4" style={{ background: 'rgba(255,255,255,0.07)', borderColor: 'rgba(247,205,236,0.14)' }}>
               {previewLoading ? (
                 <>
                   <p style={{ color: 'white', fontSize: '1.1rem' }}>Comprobando la pista…</p>
@@ -80,7 +80,7 @@ export default function MusicRequestModal({
                 onClick={onClose}
                 className="rounded-full px-4 py-3 border"
                 style={{
-                  borderColor: 'rgba(255,255,255,0.18)',
+                  borderColor: 'rgba(255,255,255,0.22)',
                   color: 'white',
                   fontFamily: "'Montserrat', sans-serif",
                   fontSize: '0.82rem',
@@ -93,7 +93,13 @@ export default function MusicRequestModal({
                 type="button"
                 onClick={onConfirm}
                 disabled={previewLoading || !preview || submitting}
-                className="btn-gold"
+                className="rounded-full px-4 py-3 font-semibold text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
+                style={{
+                  background: 'linear-gradient(135deg, #df69b7 0%, #8758de 100%)',
+                  boxShadow: '0 8px 22px rgba(153,83,185,0.26)',
+                  fontFamily: "'Montserrat', sans-serif",
+                  fontSize: '0.78rem',
+                }}
               >
                 {submitting
                   ? 'Enviando…'
@@ -108,6 +114,4 @@ export default function MusicRequestModal({
     </AnimatePresence>
   )
 }
-
-
 

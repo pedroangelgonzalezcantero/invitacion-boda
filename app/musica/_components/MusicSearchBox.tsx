@@ -1,5 +1,7 @@
 'use client'
 
+import { Search } from 'lucide-react'
+
 interface MusicSearchBoxProps {
   query: string
   onChange: (value: string) => void
@@ -8,34 +10,33 @@ interface MusicSearchBoxProps {
 
 export default function MusicSearchBox({ query, onChange, searching }: MusicSearchBoxProps) {
   return (
-    <div className="card-elegant p-4 md:p-5" style={{ background: 'rgba(212,165,165,0.2)', borderColor: 'rgba(176,120,120,0.38)', boxShadow: '0 22px 60px rgba(69,52,38,0.14)' }}>
-      <label htmlFor="music-search" className="block text-xs uppercase tracking-[0.35em] mb-3"
-        style={{ color: 'var(--rose-dark)', fontFamily: "'Montserrat', sans-serif", fontWeight: 400 }}>
-        Busca en Spotify
+    <div className="rounded-[24px] border p-4 sm:rounded-[28px] sm:p-5" style={{ background: '#fff', borderColor: '#e9e3f0', boxShadow: '0 20px 48px rgba(39,26,54,0.14)' }}>
+      <label htmlFor="music-search" className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em]"
+        style={{ color: '#59436f', fontFamily: "'Montserrat', sans-serif" }}>
+        <Search size={15} strokeWidth={2.4} />
+        Busca tu canción
       </label>
-      <div className="relative">
+      <div className="relative rounded-2xl focus-within:ring-4 focus-within:ring-fuchsia-100">
         <input
           id="music-search"
+          type="search"
           value={query}
           onChange={(event) => onChange(event.target.value)}
           placeholder="Ej. Quevedo Columbia, Dua Lipa, Houdini..."
-          className="w-full rounded-2xl border px-4 py-4"
+          className="w-full rounded-2xl border border-[#e9e3f0] bg-[#faf9fc] py-4 pl-4 pr-24 text-sm transition-colors placeholder:text-[#aaa2b2] focus:border-[#a65bc4] focus:outline-none sm:pr-28"
           style={{
-            background: 'rgba(255,255,255,0.9)',
-            borderColor: 'rgba(176,120,120,0.38)',
-            color: 'var(--charcoal)',
+            color: '#30263b',
             fontFamily: "'Montserrat', sans-serif",
-            fontSize: '0.95rem',
-            outline: 'none',
-            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.6)',
           }}
         />
-        <div className="absolute right-4 top-1/2 -translate-y-1/2 text-xs"
-          style={{ color: searching ? 'var(--gold)' : 'rgba(44,44,44,0.45)', fontFamily: "'Montserrat', sans-serif" }}>
+        <div
+          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full px-2.5 py-1 text-[0.62rem] font-semibold sm:right-3"
+          style={{ background: searching ? '#f2e8f7' : '#eee9f4', color: '#684481', fontFamily: "'Montserrat', sans-serif" }}
+          aria-live="polite"
+        >
           {searching ? 'Buscando…' : 'Spotify'}
         </div>
       </div>
     </div>
   )
 }
-
