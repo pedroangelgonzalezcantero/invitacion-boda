@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { LogOut, RefreshCw } from 'lucide-react'
 import DjHistoryList from '@/app/djMusica/_components/DjHistoryList'
 import DjMusicLogin from '@/app/djMusica/_components/DjMusicLogin'
 import DjQueueList from '@/app/djMusica/_components/DjQueueList'
@@ -148,31 +149,38 @@ export default function DjMusicPage() {
   }
 
   return (
-    <div className="min-h-screen px-4 py-6 md:py-8" style={{ background: 'linear-gradient(180deg, #342f2c 0%, #43382f 18%, #f7f0e5 18%, #fbf7f1 100%)' }}>
-      <div className="max-w-6xl mx-auto flex flex-col gap-4">
-        <div className="rounded-[30px] border p-5 md:p-7" style={{ background: 'linear-gradient(180deg, rgba(70,56,46,0.94) 0%, rgba(54,44,38,0.92) 100%)', borderColor: 'rgba(232,213,176,0.14)', boxShadow: '0 24px 70px rgba(0,0,0,0.16)' }}>
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <p className="text-xs uppercase tracking-[0.45em]" style={{ color: 'rgba(232,213,176,0.9)', fontFamily: "'Montserrat', sans-serif", fontWeight: 300 }}>
-                Wedding music control
-              </p>
-              <h1 className="mt-3" style={{ color: 'white', fontSize: 'clamp(2rem, 5vw, 3.8rem)', fontWeight: 300 }}>
-                Panel DJ · Cabina en directo
-              </h1>
-              <p className="mt-3" style={{ color: 'rgba(255,255,255,0.62)', fontFamily: "'Montserrat', sans-serif", fontSize: '0.88rem', lineHeight: 1.7, maxWidth: 680 }}>
-                Gestiona la cola, detecta canciones repetidas al instante y mueve cada tema al histórico cuando ya haya sonado.
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <button className="rounded-full px-4 py-3 border" style={{ borderColor: 'rgba(255,255,255,0.12)', color: 'white', fontFamily: "'Montserrat', sans-serif", fontSize: '0.78rem' }} onClick={() => fetchDashboard(token)}>
-                {loading ? 'Actualizando…' : 'Actualizar'}
-              </button>
-              <button className="rounded-full px-4 py-3 border" style={{ borderColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.72)', fontFamily: "'Montserrat', sans-serif", fontSize: '0.78rem' }} onClick={() => { sessionStorage.removeItem(SESSION_KEY); setAuthenticated(false); setToken(''); }}>
-                Salir
-              </button>
-            </div>
+    <div className="min-h-screen px-3 pb-6 md:px-4" style={{ background: '#fbf7f1' }}>
+      <div className="max-w-6xl mx-auto flex flex-col gap-3">
+        {/* Cabecera compacta y fija arriba: en el móvil los botones siempre quedan a mano */}
+        <header
+          className="sticky top-0 z-20 -mx-3 md:mx-0 md:mt-4 md:rounded-[22px] px-4 py-3 flex items-center justify-between gap-3"
+          style={{ background: 'linear-gradient(180deg, rgba(70,56,46,0.97) 0%, rgba(54,44,38,0.97) 100%)', boxShadow: '0 8px 24px rgba(0,0,0,0.14)', backdropFilter: 'blur(6px)' }}
+        >
+          <h1 className="min-w-0 leading-tight" style={{ color: 'white', fontSize: 'clamp(1.15rem, 4.5vw, 1.7rem)', fontWeight: 300 }}>
+            Panel de DJ <span style={{ color: '#e8d5b0' }}>Alex Romero</span>
+          </h1>
+          <div className="flex gap-2 shrink-0">
+            <button
+              className="rounded-full px-3 border flex items-center gap-1.5"
+              style={{ minHeight: 40, borderColor: 'rgba(255,255,255,0.18)', color: 'white', fontFamily: "'Montserrat', sans-serif", fontSize: '0.75rem' }}
+              onClick={() => fetchDashboard(token)}
+              disabled={loading}
+              aria-label="Actualizar"
+            >
+              <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+              <span>Actualizar</span>
+            </button>
+            <button
+              className="rounded-full px-3 border flex items-center gap-1.5"
+              style={{ minHeight: 40, borderColor: 'rgba(255,255,255,0.18)', color: 'rgba(255,255,255,0.75)', fontFamily: "'Montserrat', sans-serif", fontSize: '0.75rem' }}
+              onClick={() => { sessionStorage.removeItem(SESSION_KEY); setAuthenticated(false); setToken(''); }}
+              aria-label="Salir"
+            >
+              <LogOut size={14} />
+              <span>Salir</span>
+            </button>
           </div>
-        </div>
+        </header>
 
         <DjStatsCards stats={stats} />
 
