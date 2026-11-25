@@ -1,7 +1,7 @@
 /**
  * app/api/uploads/route.ts
  * ──────────────────────────────────────────────────────────────
- * GET  /api/uploads  → lista los últimos 100 uploads (galería)
+ * GET  /api/uploads  → lista uploads paginados (galería, ?cursor=&limit=)
  * POST /api/uploads  → guarda metadata de un nuevo upload de Cloudinary
  *
  * NOTA: Antes estos accesos se hacían directamente desde el cliente
@@ -13,10 +13,23 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
-// ── GET: listar uploads para la galería ───────────────────────
-export async function GET() {
+// ── GET: listar uploads para la galería (paginado) ────────────
+//   ?limit=60          → tamaño de página (máx. 100)
+//   ?cursor=<id>       → devuelve los uploads más antiguos que ese id
+//   Header X-Total-Count → total de uploads en la BD
+const DEFAULT_LIMIT = 60
+const MAX_LIMIT     = 100
+
+export async function GET(request: NextRequest) {
   try {
-    const uploads = await prisma.upload.findMany({
+    const { searchParams } = new URL(request.url)
+    const cursor = searchParams.get('cursor')
+    const limit  = Math.min(
+      Math.max(parseInt(searchParams.get('limit') ?? '', 10) || DEFAULT_LIMIT, 1),
+      MAX_LIMIT,
+    )
+
+    const [uploads, total] = await Promise.all([prisma.upload.findMany({
       select: {
         id:          true,
         fileUrl:     true,
@@ -27,9 +40,11 @@ export async function GET() {
         createdAt:   true,
         thumbUrl:    true,
       },
-      orderBy: { createdAt: 'desc' },
-      take: 100,
-    })
+      // id como desempate → orden estable aunque dos fotos compartan createdAt
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      take: limit,
+      ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+    }), prisma.upload.count()])
 
     // Mapear camelCase de Prisma → snake_case que espera el frontend (MediaRecord)
     const data = uploads.map((u) => ({
@@ -43,7 +58,9 @@ export async function GET() {
       thumb_url:    u.thumbUrl,
     }))
 
-    return NextResponse.json(data)
+    return NextResponse.json(data, {
+      headers: { 'X-Total-Count': String(total) },
+    })
   } catch (err) {
     console.error('[GET /api/uploads] Error:', err)
     return NextResponse.json(

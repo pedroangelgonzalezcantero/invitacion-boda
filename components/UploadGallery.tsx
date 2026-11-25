@@ -1,23 +1,48 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getThumbUrl, getFullUrl, type MediaRecord } from '@/lib/cloudinary'
 import { X, Play, RefreshCw, User } from 'lucide-react'
 
-export default function UploadGallery() {
-  const [uploads, setUploads]       = useState<MediaRecord[]>([])
-  const [loading, setLoading]       = useState(true)
-  const [selected, setSelected]     = useState<MediaRecord | null>(null)
-  const [refreshing, setRefreshing] = useState(false)
+const PAGE_SIZE = 60
 
+async function fetchPage(cursor?: string): Promise<{ items: MediaRecord[]; total: number | null }> {
+  const params = new URLSearchParams({ limit: String(PAGE_SIZE) })
+  if (cursor) params.set('cursor', cursor)
+  const res = await fetch(`/api/uploads?${params}`)
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  const total = res.headers.get('X-Total-Count')
+  return { items: (await res.json()) as MediaRecord[], total: total ? Number(total) : null }
+}
+
+export default function UploadGallery() {
+  const [uploads, setUploads]         = useState<MediaRecord[]>([])
+  const [total, setTotal]             = useState<number | null>(null)
+  const [hasMore, setHasMore]         = useState(false)
+  const [loading, setLoading]         = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [selected, setSelected]       = useState<MediaRecord | null>(null)
+  const [refreshing, setRefreshing]   = useState(false)
+  const loadedOlderRef                = useRef(false)  // ¿el usuario pulsó "Ver más"?
+
+  // Carga la primera página. Si ya había páginas antiguas cargadas, las conserva
+  // y solo añade arriba las novedades (evita "perder" lo que el usuario ya vio).
   const fetchUploads = useCallback(async (showRefresh = false) => {
     if (showRefresh) setRefreshing(true)
     try {
-      const res = await fetch('/api/uploads')
-      if (res.ok) {
-        const data = await res.json()
-        setUploads(data as MediaRecord[])
+      const { items, total } = await fetchPage()
+      setTotal(total)
+      if (!loadedOlderRef.current) {
+        // Solo hay una página cargada → reemplazo directo
+        setUploads(items)
+        setHasMore(items.length === PAGE_SIZE)
+      } else {
+        // Hay páginas antiguas cargadas → añadir novedades arriba sin duplicar
+        setUploads(prev => {
+          const fresh = new Set(items.map(u => u.id))
+          return [...items, ...prev.filter(u => !fresh.has(u.id))]
+        })
       }
     } catch (err) {
       console.error('[UploadGallery] fetchUploads error:', err)
@@ -25,6 +50,25 @@ export default function UploadGallery() {
     setLoading(false)
     setRefreshing(false)
   }, [])
+
+  const loadMore = async () => {
+    const last = uploads[uploads.length - 1]
+    if (!last || loadingMore) return
+    setLoadingMore(true)
+    try {
+      const { items, total } = await fetchPage(last.id)
+      loadedOlderRef.current = true
+      setTotal(total)
+      setUploads(prev => {
+        const seen = new Set(prev.map(u => u.id))
+        return [...prev, ...items.filter(u => !seen.has(u.id))]
+      })
+      setHasMore(items.length === PAGE_SIZE)
+    } catch (err) {
+      console.error('[UploadGallery] loadMore error:', err)
+    }
+    setLoadingMore(false)
+  }
 
   useEffect(() => {
     fetchUploads()
@@ -61,7 +105,7 @@ export default function UploadGallery() {
     <>
       <div className="flex items-center justify-between mb-3">
         <p style={{ color: 'var(--charcoal)', opacity: 0.4, fontFamily: "'Montserrat', sans-serif", fontWeight: 300, fontSize: '0.75rem' }}>
-          {uploads.length} {uploads.length === 1 ? 'recuerdo' : 'recuerdos'}
+          {total ?? uploads.length} {(total ?? uploads.length) === 1 ? 'recuerdo' : 'recuerdos'}
         </p>
         <button onClick={() => fetchUploads(true)} disabled={refreshing}
           style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--gold)', padding: 4 }}>
@@ -116,6 +160,16 @@ export default function UploadGallery() {
           </motion.div>
         ))}
       </div>
+
+      {/* Cargar más (paginación) */}
+      {hasMore && (
+        <div className="flex justify-center mt-5">
+          <button onClick={loadMore} disabled={loadingMore}
+            className="btn-gold" style={{ fontSize: '0.85rem', opacity: loadingMore ? 0.7 : 1 }}>
+            {loadingMore ? 'Cargando…' : 'Ver más recuerdos'}
+          </button>
+        </div>
+      )}
 
       {/* Lightbox */}
       <AnimatePresence>

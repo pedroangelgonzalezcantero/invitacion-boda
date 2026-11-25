@@ -24,7 +24,12 @@ export const UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET ??
 
 /** Tamaño máximo permitido ANTES de comprimir */
 export const MAX_IMAGE_BYTES = 30 * 1024 * 1024   // 30 MB (el original puede ser grande)
-export const MAX_VIDEO_BYTES = 100 * 1024 * 1024  // 100 MB
+/**
+ * Los vídeos NO se comprimen: van tal cual a Cloudinary y cada reproducción
+ * descarga el archivo entero (bandwidth). 40 MB ≈ 20-30 s en 1080p.
+ * Es el límite que más protege los 25 créditos del plan gratis.
+ */
+export const MAX_VIDEO_BYTES = 40 * 1024 * 1024   // 40 MB
 
 // ── Configuración de thumbnail ────────────────────────────────────
 
@@ -196,9 +201,10 @@ export function getThumbUrl(publicId: string, type: ResourceType, size = THUMB_S
     return `https://res.cloudinary.com/${CLOUD_NAME}/video/upload/w_${size},h_${size},c_fill,q_auto,so_0/${publicId}.jpg`
   }
 
-  // f_auto: Cloudinary elige AVIF/WebP/JPEG según el navegador.
-  // Cuenta como 1 transformación (Cloudinary cachea internamente cada variante de formato).
-  return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_${size},h_${size},c_fill,q_auto,f_auto/${publicId}`
+  // Sin f_auto a propósito: con f_auto Cloudinary genera una variante por formato
+  // (AVIF/WebP/JPEG) y cada una cuenta como transformación. Las imágenes ya llegan
+  // como JPEG comprimido, así que una única variante JPEG es suficiente.
+  return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_${size},h_${size},c_fill,q_auto/${publicId}`
 }
 
 /**
@@ -229,7 +235,10 @@ export function validateFileSize(file: File): string | null {
   const isVideo = file.type.startsWith('video/')
   const max     = isVideo ? MAX_VIDEO_BYTES : MAX_IMAGE_BYTES
   if (file.size > max) {
-    return `El archivo supera el límite (${isVideo ? '100 MB' : '30 MB'})`
+    const maxMB = Math.round(max / 1024 / 1024)
+    return isVideo
+      ? `Vídeo demasiado largo (máx. ${maxMB} MB ≈ 30 s)`
+      : `El archivo supera el límite (${maxMB} MB)`
   }
   return null
 }
